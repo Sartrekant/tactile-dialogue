@@ -16,7 +16,7 @@ const HeroSection = () => {
       />
 
       {/* Subtle overlay for text legibility */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/30 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-6xl px-6">
