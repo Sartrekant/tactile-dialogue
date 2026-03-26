@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import WorkshopGrid from "@/components/WorkshopGrid";
-import ConversationalForm from "@/components/ConversationalForm";
+import ContactSection from "@/components/ContactSection";
 
 const Index = () => {
   return (
@@ -13,7 +13,7 @@ const Index = () => {
         <section id="haandvaerket" className="px-6 py-32">
           <div className="mx-auto max-w-6xl border-t border-border" />
         </section>
-        <ConversationalForm />
+        <ContactSection />
       </main>
       <footer className="border-t border-border px-6 py-12">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
