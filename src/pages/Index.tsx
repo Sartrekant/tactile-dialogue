@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import WorkshopGrid from "@/components/WorkshopGrid";
-import ConversationalForm from "@/components/ConversationalForm";
+import ContactSection from "@/components/ContactSection";
 
 const Index = () => {
   return (
