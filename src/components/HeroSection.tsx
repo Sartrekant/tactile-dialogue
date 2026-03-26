@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import RevealText, { EASING } from "./RevealText";
-import heroImage from "@/assets/hero.png";
+import heroImage from "@/assets/hero.jpg";
 
 const HeroSection = () => {
   return (
@@ -12,7 +12,7 @@ const HeroSection = () => {
         initial={{ scale: 1.08, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.6, ease: EASING }}
-        className="absolute inset-0 h-full w-full object-cover object-[70%_70%]"
+        className="absolute inset-0 h-full w-full object-cover"
       />
 
       {/* Subtle overlay for text legibility */}
