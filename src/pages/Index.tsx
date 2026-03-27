@@ -13,7 +13,7 @@ const AnimatedFooter = () => {
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <footer className="px-6 pb-12 pt-32">
+    <footer className="px-4 md:px-6 pb-8 md:pb-12 pt-20 md:pt-32">
       <div ref={ref} className="mx-auto max-w-6xl">
         <motion.div
           initial={{ scaleX: 0 }}
