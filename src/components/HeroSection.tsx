@@ -21,41 +21,38 @@ const HeroSection = () => {
     }
   }, [speed]);
 
+  const entryScale = useTransform(
+    () => videoReady ? 1 : 1.04
+  );
+
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      {/* Blur-up placeholder */}
+      {/* Blur-up placeholder — blur lives here, never on the video */}
       <div
-        className="absolute inset-0 bg-background transition-opacity"
+        className="absolute inset-0 bg-background"
         style={{
-          transitionDuration: "1.5s",
-          transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
           opacity: videoReady ? 0 : 1,
+          transition: "opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1)",
+          zIndex: 1,
         }}
       />
 
-      {/* Hero background video with scroll-scale */}
-      <motion.div className="absolute inset-0" style={{ scale }}>
-        <motion.div
-          initial={{ scale: 1.04 }}
-          animate={videoReady ? { scale: 1 } : {}}
-          transition={{ duration: 1.8, ease: EASING }}
-          className="h-full w-full"
-          style={{
-            filter: videoReady ? "blur(0px)" : "blur(20px)",
-            transition: "filter 1.5s cubic-bezier(0.22, 1, 0.36, 1)",
-          }}
-        >
-          <video
-            ref={videoRef}
-            src={heroVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            onCanPlayThrough={() => setVideoReady(true)}
-            className="h-full w-full object-cover"
-          />
-        </motion.div>
+      {/* Single motion.div for scroll-scale — no nested transforms */}
+      <motion.div
+        className="absolute inset-0"
+        style={{ scale, willChange: "transform" }}
+      >
+        <video
+          ref={videoRef}
+          src={heroVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          onCanPlayThrough={() => setVideoReady(true)}
+          className="h-full w-full object-cover"
+        />
       </motion.div>
 
       {/* Gradient overlays for text legibility */}
