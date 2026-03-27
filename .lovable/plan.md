@@ -1,60 +1,34 @@
 
 
-# LANDSVIG — "Den Taktile Algoritme"
+# Elegante sektionsovergange
 
-## Overview
-A single-page web app for LANDSVIG, a boutique AI consultancy. The design follows "quiet luxury" Scandinavian minimalism with physical, analog-feeling aesthetics.
+## Problem
+Sektionerne (Hero → Workshop → Håndværket → Kontakt → Footer) skifter abrupt uden visuel sammenhæng. Den tomme `#haandvaerket`-sektion er kun en tynd border-linje.
 
-## Design System
-- **Background**: Benhvid (#F9F8F4)
-- **Primary text**: Oxideret stål (#2C2E30)
-- **Borders**: Varm grå hør (#E2DFD8)
-- **Fonts**: Playfair Display (headings), JetBrains Mono (body/labels)
-- **Noise texture overlay** for tactile paper feel
-- **No standard shadows, no large border-radius, no off-palette colors**
+## Løsning
+Skabe organiske overgange mellem sektioner med to virkemidler: **dekorative skillelinjer** og **scroll-drevne fade-overgange**.
 
-## Components to Build
+### 1. `<SectionDivider />` — ny komponent
+En genbrugelig overgangskomponent der placeres mellem sektioner:
+- Stor vertikal whitespace (`py-24`)
+- En tynd, centreret horisontal linje (`max-w-[120px]`, `border-border`) der animeres ind via Framer Motion (scale-x fra 0 til 1) med den tunge easing-kurve
+- Scroll-triggered (`useInView`)
+- Variant-prop for at vælge mellem linje, lille serif-ornament, eller ingen visuel markør
 
-### 1. Design System Setup
-- Install Framer Motion
-- Import Google Fonts (Playfair Display, JetBrains Mono)
-- Update Tailwind config with custom colors and fonts
-- Add noise texture overlay in App.tsx
+### 2. Scroll-drevet opacity på sektioner
+Wrap hver sektion i en `motion.div` der fader ind fra `opacity: 0` og `y: 40px` med den tunge easing (`[0.22, 1, 0.36, 1]`, 1s varighed) når den kommer i viewport. Ingen spring, ingen bounce.
 
-### 2. `<RevealText />` — Reusable Animation Component
-- overflow-hidden wrapper with text animating from y:100% to y:0%
-- Uses custom easing [0.22, 1, 0.36, 1], duration 0.8-1.2s
-- Scroll-triggered with `viewport={{ once: true, margin: "-100px" }}`
+### 3. Opdater `Index.tsx`
+- Fjern den tomme `#haandvaerket` sektion (den gør ingenting)
+- Indsæt `<SectionDivider />` mellem Hero→Workshop og Workshop→Kontakt
+- Tilføj gradient-fades i toppen af WorkshopGrid og ContactSection via pseudo-elementer eller en subtil `bg-gradient-to-b from-background via-background/0` for at blødgøre overgangen fra foregående sektion
 
-### 3. `<Navbar />`
-- Sticky, glassmorphic (backdrop-blur, semi-transparent #F9F8F4)
-- Left: "LANDSVIG" in Playfair Display
-- Right: "Værkstedet", "Håndværket", "Kontakt" in JetBrains Mono uppercase
-- Bottom border in #E2DFD8
+### 4. Footer-overgang
+Tilføj en bredere, mere "åndende" `pt-32` spacing over footeren og lad border-linjen også animere ind.
 
-### 4. `<HeroSection />`
-- Full viewport height, centered content, generous whitespace
-- H1 (Playfair, massive): "Vi bygger systemet. Så du kan køre hjem kl. 16."
-- Subtext (JetBrains Mono, max-w ~400px)
-- Minimalist CTA button with #2C2E30 border: "Start en samtale"
-
-### 5. `<WorkshopGrid />` — "Digitale Redskaber"
-- Section title in Playfair
-- 3-column grid with divide-x/divide-y borders (#E2DFD8) — blueprint aesthetic
-- Three `<ToolCard />` components with dark placeholder images (#2C2E30 with subtle inner border)
-  - "Timer & Materialer"
-  - "Den Automatiske Dagseddel"
-  - "Tilbudsmotoren"
-
-### 6. `<ConversationalForm />` — "Håndtrykket"
-- Interactive "Mad Libs" style contact form
-- Large Playfair text with inline dropdowns and text input
-- Dropdowns for company type and pain point
-- Text input for contact info (border-bottom only, focus color change)
-- Submit button in JetBrains Mono: "Send beskeden"
-
-### 7. Assembly
-- All components assembled in App.tsx with smooth scroll sections
-- All Framer Motion animations use the specified easing curve
-- Hover states: subtle y:-2 lift with custom soft shadow
+## Filer der ændres
+- **Ny**: `src/components/SectionDivider.tsx`
+- **Ændres**: `src/pages/Index.tsx` — tilføj dividers, fjern tom sektion
+- **Ændres**: `src/components/WorkshopGrid.tsx` — juster top-padding
+- **Ændres**: `src/components/ContactSection.tsx` — juster top-padding
 
