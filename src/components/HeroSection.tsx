@@ -52,7 +52,7 @@ const HeroSection = () => {
           <RevealText as="h1" className="font-serif text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.1] text-foreground">
             Vi bygger systemet.
             <br />
-            Så du kan køre hjem kl. 16.
+            Så du kan køre hjem.
           </RevealText>
 
           <RevealText as="p" delay={0.2} className="mt-8 max-w-[400px] font-mono text-[13px] leading-relaxed tracking-wide text-foreground/70">
