@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import RevealText, { EASING } from "./RevealText";
 import heroVideo from "@/assets/hero-video.mp4";
@@ -6,6 +6,9 @@ import { Slider } from "@/components/ui/slider";
 
 const HeroSection = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number>(0);
   const [videoReady, setVideoReady] = useState(false);
   const [speed, setSpeed] = useState(100);
 
@@ -21,13 +24,45 @@ const HeroSection = () => {
     }
   }, [speed]);
 
-  const entryScale = useTransform(
-    () => videoReady ? 1 : 1.04
-  );
+  // Canvas resize via ResizeObserver
+  useEffect(() => {
+    const container = containerRef.current;
+    const canvas = canvasRef.current;
+    if (!container || !canvas) return;
+
+    const ro = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+    });
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, []);
+
+  // rAF draw loop
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { alpha: false });
+    if (!ctx) return;
+
+    const draw = () => {
+      if (video.readyState >= 2) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      }
+      rafRef.current = requestAnimationFrame(draw);
+    };
+
+    rafRef.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      {/* Blur-up placeholder — blur lives here, never on the video */}
+      {/* Blur-up placeholder */}
       <div
         className="absolute inset-0 bg-background"
         style={{
@@ -37,11 +72,13 @@ const HeroSection = () => {
         }}
       />
 
-      {/* Single motion.div for scroll-scale — no nested transforms */}
+      {/* Scroll-scale container with canvas */}
       <motion.div
+        ref={containerRef}
         className="absolute inset-0"
         style={{ scale, willChange: "transform" }}
       >
+        {/* Hidden video source */}
         <video
           ref={videoRef}
           src={heroVideo}
@@ -51,11 +88,18 @@ const HeroSection = () => {
           playsInline
           preload="auto"
           onCanPlayThrough={() => setVideoReady(true)}
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ opacity: 0, pointerEvents: "none" }}
+        />
+        {/* Visible canvas */}
+        <canvas
+          ref={canvasRef}
           className="h-full w-full object-cover"
+          style={{ display: "block" }}
         />
       </motion.div>
 
-      {/* Gradient overlays for text legibility */}
+      {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
       <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-background/90 to-transparent" />
 
@@ -88,7 +132,7 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Speed control slider — bottom right */}
+      {/* Speed control slider */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={videoReady ? { opacity: 1 } : {}}
@@ -98,7 +142,7 @@ const HeroSection = () => {
         <Slider
           value={[speed]}
           onValueChange={(v) => setSpeed(v[0])}
-          min={10}
+          min={30}
           max={200}
           step={10}
           className="w-24 md:w-32"
