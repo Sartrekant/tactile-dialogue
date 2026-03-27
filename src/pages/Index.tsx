@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import WorkshopGrid from "@/components/WorkshopGrid";
+import HaandvaerketSection from "@/components/HaandvaerketSection";
 import ContactSection from "@/components/ContactSection";
 import SectionDivider from "@/components/SectionDivider";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -43,6 +44,8 @@ const Index = () => {
           <WorkshopGrid />
         </ScrollReveal>
         <SectionDivider variant="ornament" />
+        <HaandvaerketSection />
+        <SectionDivider />
         <ScrollReveal>
           <ContactSection />
         </ScrollReveal>

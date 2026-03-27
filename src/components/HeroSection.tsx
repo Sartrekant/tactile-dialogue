@@ -1,45 +1,61 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import RevealText, { EASING } from "./RevealText";
-import heroImage from "@/assets/hero.jpg";
+import heroVideo from "@/assets/hero-video.mp4";
+import { Slider } from "@/components/ui/slider";
 
 const HeroSection = () => {
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [speed, setSpeed] = useState(100);
 
   const { scrollYProgress } = useScroll({
     offset: ["start start", "end start"],
   });
 
-  // Subtle scroll-driven scale: 1.0 → 1.05 over entire viewport
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = speed / 100;
+    }
+  }, [speed]);
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      {/* Blur-up placeholder — benhvid base that dissolves */}
+      {/* Blur-up placeholder */}
       <div
         className="absolute inset-0 bg-background transition-opacity"
         style={{
           transitionDuration: "1.5s",
           transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
-          opacity: imageLoaded ? 0 : 1,
+          opacity: videoReady ? 0 : 1,
         }}
       />
 
-      {/* Hero background image with scroll-scale and blur-up reveal */}
+      {/* Hero background video with scroll-scale */}
       <motion.div className="absolute inset-0" style={{ scale }}>
-        <motion.img
-          src={heroImage}
-          alt="LANDSVIG — Struktur. Tid. Ro."
-          onLoad={() => setImageLoaded(true)}
+        <motion.div
           initial={{ scale: 1.04 }}
-          animate={imageLoaded ? { scale: 1 } : {}}
+          animate={videoReady ? { scale: 1 } : {}}
           transition={{ duration: 1.8, ease: EASING }}
-          className="h-full w-full object-cover"
+          className="h-full w-full"
           style={{
-            filter: imageLoaded ? "blur(0px)" : "blur(20px)",
+            filter: videoReady ? "blur(0px)" : "blur(20px)",
             transition: "filter 1.5s cubic-bezier(0.22, 1, 0.36, 1)",
           }}
-        />
+        >
+          <video
+            ref={videoRef}
+            src={heroVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            onCanPlayThrough={() => setVideoReady(true)}
+            className="h-full w-full object-cover"
+          />
+        </motion.div>
       </motion.div>
 
       {/* Gradient overlays for text legibility */}
@@ -74,6 +90,26 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Speed control slider — bottom right */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={videoReady ? { opacity: 1 } : {}}
+        transition={{ duration: 1, ease: EASING, delay: 1 }}
+        className="absolute bottom-6 right-4 md:bottom-10 md:right-8 z-20 flex items-center gap-3"
+      >
+        <Slider
+          value={[speed]}
+          onValueChange={(v) => setSpeed(v[0])}
+          min={10}
+          max={200}
+          step={10}
+          className="w-24 md:w-32"
+        />
+        <span className="font-mono text-[11px] tracking-wider text-foreground/50 min-w-[3ch] text-right">
+          {speed}%
+        </span>
+      </motion.div>
     </section>
   );
 };
