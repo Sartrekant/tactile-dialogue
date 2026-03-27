@@ -1,26 +1,35 @@
 
 
-# Baggrundsbillede på kontaktsektionen
+# Videooptimering — lav FPS i hero
 
-## Opgave
-Anvend det uploadede billede som fuldskærmsbaggrund bag kontaktsektionen med samme principper som hero-sektionen: blur-up reveal, scroll-drevet skalering, og gradient-overlays for læsbarhed.
+## Problem
+Videoen kører med lav framerate. To hovedårsager:
 
-## Implementering
+1. **CSS `filter: blur()` på en `<video>`** — browseren skal re-rasterize hvert frame gennem blur-filteret, selv efter blur er fjernet (Framer Motion holder elementet i compositing pipeline)
+2. **Framer Motion `scale` transform på scroll** — `useTransform` opdaterer `scale` på videoen hvert frame under scroll, hvilket tvinger layout/paint
 
-### 1. Kopier billede til `src/assets/contact-bg.jpg`
+## Løsning
 
-### 2. Omskriv `ContactSection.tsx`
-- Gør sektionen `relative` med `overflow-hidden` og `min-h-screen` for at rumme baggrundsbilledet
-- Tilføj en `motion.div` med `motion.img` indeni (samme mønster som HeroSection):
-  - **Blur-up**: Benhvid placeholder-div der fader ud over 1.5s når billedet loader
-  - **Scroll-scale**: `useScroll` + `useTransform` for subtil skalering (1.0 → 1.05)
-  - **Entry-animation**: `scale: 1.04 → 1.0` over 1.8s med EASING
-- Gradient-overlays for tekstlæsbarhed:
-  - `bg-gradient-to-r from-background/80 via-background/40 to-transparent` (venstre side)
-  - Evt. en top-gradient for blød overgang fra foregående sektion
-- Content-div med `relative z-10` for at ligge over baggrunden
+### 1. Flyt blur-up til placeholder, ikke videoen
+I stedet for at anvende `filter: blur(20px)` direkte på video-wrapperen, lad videoen altid være uskarp-fri. Brug kun placeholder-div'en (som allerede eksisterer) til blur-effekten. Når videoen er klar, fade placeholder ud — videoen afspilles altid uden filter.
 
-### Filer
-- **Kopieres**: `user-uploads://Generated_Image...jpg` → `src/assets/contact-bg.jpg`
-- **Ændres**: `src/components/ContactSection.tsx`
+### 2. Brug `will-change: transform` og undgå nested transforms
+- Fjern den indre `motion.div` med entry-scale animation (den skaber dobbelt compositing)
+- Flyt entry-scale til den ydre `motion.div` der allerede har scroll-scale
+- Tilføj `will-change: "transform"` på video-containeren for GPU-acceleration
+
+### 3. Tilføj `preload="auto"` på videoen
+Sikrer at browseren bufferer videoen aggressivt.
+
+### 4. Reducer compositing layers
+- Brug en plain `<div>` i stedet for `motion.div` for den indre wrapper
+- Lad kun én `motion.div` styre scale (kombinér scroll-scale og entry-scale)
+
+## Fil der ændres
+- `src/components/HeroSection.tsx`
+
+## Resultat
+- Blur-filter rører aldrig videoen → ingen per-frame rasterization
+- Én compositing layer i stedet for to nested → halveret GPU-arbejde
+- `will-change: transform` promoverer til egen GPU-layer
 
