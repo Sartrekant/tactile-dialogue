@@ -47,15 +47,15 @@ const HeroSection = () => {
       <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-background/90 to-transparent" />
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-6xl px-6">
+      <div className="relative z-10 w-full max-w-6xl px-4 md:px-6">
         <div className="max-w-xl">
-          <RevealText as="h1" className="font-serif text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.1] text-foreground">
+          <RevealText as="h1" className="font-serif text-[clamp(2rem,6vw,4.5rem)] leading-[1.1] text-foreground">
             Vi bygger systemet.
             <br />
             Så du kan køre hjem.
           </RevealText>
 
-          <RevealText as="p" delay={0.2} className="mt-8 max-w-[400px] font-mono text-[13px] leading-relaxed tracking-wide text-foreground/70">
+          <RevealText as="p" delay={0.2} className="mt-6 md:mt-8 max-w-[400px] font-mono text-[12px] md:text-[13px] leading-relaxed tracking-wide text-foreground/70">
             Skræddersyede AI-værktøjer til virksomheder, der lever af fysisk arbejde. Vi behandler prompt engineering som fint dansk snedkerhåndværk.
           </RevealText>
 
@@ -63,11 +63,11 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: EASING, delay: 0.6 }}
-            className="mt-12"
+            className="mt-8 md:mt-12"
           >
             <a
               href="#kontakt"
-              className="group inline-flex items-center border border-foreground bg-foreground px-8 py-4 font-mono text-[11px] uppercase tracking-[0.2em] text-background transition-all duration-700 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-15px_rgba(44,46,48,0.15)] rounded-sm"
+              className="group inline-flex items-center border border-foreground bg-foreground px-6 py-3.5 md:px-8 md:py-4 font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-background transition-all duration-700 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-15px_rgba(44,46,48,0.15)] rounded-sm"
             >
               Start en samtale
             </a>

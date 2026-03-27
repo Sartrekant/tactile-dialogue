@@ -58,12 +58,12 @@ const ContactSection = () => {
       <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background/60 to-transparent" />
 
       {/* Content */}
-      <div className="relative z-10 w-full px-6 py-32">
+      <div className="relative z-10 w-full px-4 md:px-6 py-20 md:py-32">
         <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 gap-16 md:grid-cols-12">
+          <div className="grid grid-cols-1 gap-10 md:gap-16 md:grid-cols-12">
             {/* Left column */}
             <div className="md:col-span-5">
-              <RevealText as="h2" className="font-serif text-[clamp(2rem,4vw,3.5rem)] leading-[1.1] tracking-tight text-foreground">
+              <RevealText as="h2" className="font-serif text-[clamp(1.75rem,5vw,3.5rem)] leading-[1.1] tracking-tight text-foreground">
                 Lad os se på tegningerne.
               </RevealText>
 
@@ -71,7 +71,7 @@ const ContactSection = () => {
                 initial={{ opacity: 0 }}
                 animate={isInView ? { opacity: 1 } : {}}
                 transition={{ duration: 1, ease: EASING, delay: 0.4 }}
-                className="mt-8 max-w-[380px] font-mono text-[13px] leading-[1.8] tracking-wide text-foreground/70"
+                className="mt-6 md:mt-8 max-w-[380px] font-mono text-[12px] md:text-[13px] leading-[1.8] tracking-wide text-foreground/70"
               >
                 Lad os tage en uforpligtende snak om dit fundament. Ingen lange formularer. Skriv dit nummer, så ringer vi.
               </motion.p>

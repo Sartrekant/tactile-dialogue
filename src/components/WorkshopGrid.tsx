@@ -20,7 +20,7 @@ const ToolCard = ({ title, description, icon, index }: ToolCardProps) => {
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.8, ease: EASING, delay: index * 0.15 }}
-      className="group flex flex-col p-8 md:p-10 transition-all duration-700 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-15px_rgba(44,46,48,0.08)]"
+      className="group flex flex-col p-6 md:p-10 transition-all duration-700 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-15px_rgba(44,46,48,0.08)]"
     >
       {/* Dark placeholder image */}
       <div className="mb-8 aspect-[4/3] w-full rounded-sm bg-foreground flex items-center justify-center border border-foreground/80">
@@ -57,9 +57,9 @@ const WorkshopGrid = () => {
   ];
 
   return (
-    <section id="vaerkstedet" className="px-6 py-32">
+    <section id="vaerkstedet" className="px-4 md:px-6 py-20 md:py-32">
       <div className="mx-auto max-w-6xl">
-        <RevealText as="h2" className="mb-16 font-serif text-4xl md:text-5xl text-foreground">
+        <RevealText as="h2" className="mb-10 md:mb-16 font-serif text-3xl md:text-5xl text-foreground">
           Digitale Redskaber
         </RevealText>
 
