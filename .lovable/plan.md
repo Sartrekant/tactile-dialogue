@@ -1,35 +1,30 @@
 
 
-# Videooptimering — lav FPS i hero
+# Smooth video ved lav hastighed
 
 ## Problem
-Videoen kører med lav framerate. To hovedårsager:
+Når `playbackRate` sættes til 0.3, har browseren ikke nok frames at vise. En video optaget i 30fps har kun ~9 unikke frames per sekund ved 30% hastighed — det ser hakkende ud fordi browseren bare holder hvert frame længere.
 
-1. **CSS `filter: blur()` på en `<video>`** — browseren skal re-rasterize hvert frame gennem blur-filteret, selv efter blur er fjernet (Framer Motion holder elementet i compositing pipeline)
-2. **Framer Motion `scale` transform på scroll** — `useTransform` opdaterer `scale` på videoen hvert frame under scroll, hvilket tvinger layout/paint
+## Løsning: Canvas-baseret frame interpolation
 
-## Løsning
+Erstat den synlige `<video>` med et `<canvas>` element der tegner frames via `requestAnimationFrame`. Videoen afspilles skjult i baggrunden. Canvas-tilgangen giver to fordele:
 
-### 1. Flyt blur-up til placeholder, ikke videoen
-I stedet for at anvende `filter: blur(20px)` direkte på video-wrapperen, lad videoen altid være uskarp-fri. Brug kun placeholder-div'en (som allerede eksisterer) til blur-effekten. Når videoen er klar, fade placeholder ud — videoen afspilles altid uden filter.
+1. **Jævnere frame-timing**: `requestAnimationFrame` kører på 60fps og tegner det aktuelle video-frame til canvas — selv om videoen kun har nye frames ~9 gange i sekundet, undgår vi browserens native video-rendering pipeline som kan "hoppe" mellem frames.
 
-### 2. Brug `will-change: transform` og undgå nested transforms
-- Fjern den indre `motion.div` med entry-scale animation (den skaber dobbelt compositing)
-- Flyt entry-scale til den ydre `motion.div` der allerede har scroll-scale
-- Tilføj `will-change: "transform"` på video-containeren for GPU-acceleration
+2. **Alternativ: Hæv minimum hastighed** — den simpleste løsning er at sætte `min` på slideren til 50 (i stedet for 10), da de fleste videoer ser acceptabelt ud ned til 50% hastighed (15fps ved 30fps kilde).
 
-### 3. Tilføj `preload="auto"` på videoen
-Sikrer at browseren bufferer videoen aggressivt.
+### Anbefaling
+Kombiner begge: Hæv minimum til 30% og brug canvas-rendering for at udglatte frame-timing.
 
-### 4. Reducer compositing layers
-- Brug en plain `<div>` i stedet for `motion.div` for den indre wrapper
-- Lad kun én `motion.div` styre scale (kombinér scroll-scale og entry-scale)
+### Implementering
 
-## Fil der ændres
+**`src/components/HeroSection.tsx`**:
+- Behold `<video>` som skjult kilde (`display: none` eller `opacity: 0; position: absolute`)
+- Tilføj et `<canvas>` element med samme dimensioner (`w-full h-full object-cover` via CSS)
+- I en `useEffect`, start en `requestAnimationFrame`-loop der tegner `ctx.drawImage(videoRef.current, 0, 0, width, height)` hvert frame
+- Canvas auto-resizes via `ResizeObserver` på containeren
+- Slider min ændres fra 10 til 30
+
+### Filer der ændres
 - `src/components/HeroSection.tsx`
-
-## Resultat
-- Blur-filter rører aldrig videoen → ingen per-frame rasterization
-- Én compositing layer i stedet for to nested → halveret GPU-arbejde
-- `will-change: transform` promoverer til egen GPU-layer
 
