@@ -2,27 +2,20 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import RevealText, { EASING } from "./RevealText";
 import heroVideo from "@/assets/hero-video.mp4";
-import { Slider } from "@/components/ui/slider";
 
 const HeroSection = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
+  const isVisibleRef = useRef(true);
   const [videoReady, setVideoReady] = useState(false);
-  const [speed, setSpeed] = useState(100);
 
   const { scrollYProgress } = useScroll({
     offset: ["start start", "end start"],
   });
 
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = speed / 100;
-    }
-  }, [speed]);
 
   // Canvas resize via ResizeObserver
   useEffect(() => {
@@ -40,8 +33,8 @@ const HeroSection = () => {
     return () => ro.disconnect();
   }, []);
 
-  // rAF draw loop
-  useEffect(() => {
+  // Start/restart the rAF draw loop
+  const startDrawLoop = useCallback(() => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
@@ -50,6 +43,13 @@ const HeroSection = () => {
     if (!ctx) return;
 
     const draw = () => {
+      if (!isVisibleRef.current) {
+        video.pause();
+        return; // stop rAF chain — will be restarted by IntersectionObserver
+      }
+      if (video.paused && video.readyState >= 2) {
+        video.play();
+      }
       if (video.readyState >= 2) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       }
@@ -57,8 +57,35 @@ const HeroSection = () => {
     };
 
     rafRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(rafRef.current);
   }, []);
+
+  // Visibility tracking — pause rAF and video when hero scrolls out of view
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const wasVisible = isVisibleRef.current;
+        isVisibleRef.current = entry.isIntersecting;
+
+        // Restart draw loop when becoming visible again
+        if (!wasVisible && entry.isIntersecting) {
+          startDrawLoop();
+        }
+      },
+      { threshold: 0 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [startDrawLoop]);
+
+  // Initial draw loop start
+  useEffect(() => {
+    startDrawLoop();
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [startDrawLoop]);
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
@@ -86,8 +113,11 @@ const HeroSection = () => {
           loop
           muted
           playsInline
-          preload="auto"
-          onCanPlayThrough={() => setVideoReady(true)}
+          preload="metadata"
+          onCanPlayThrough={() => {
+            if (videoRef.current) videoRef.current.playbackRate = 0.75;
+            setVideoReady(true);
+          }}
           className="absolute inset-0 h-full w-full object-cover"
           style={{ opacity: 0, pointerEvents: "none" }}
         />
@@ -113,7 +143,7 @@ const HeroSection = () => {
           </RevealText>
 
           <RevealText as="p" delay={0.2} className="mt-6 md:mt-8 max-w-[400px] font-mono text-[12px] md:text-[13px] leading-relaxed tracking-wide text-foreground/70">
-            Skræddersyede AI-værktøjer til virksomheder, der lever af fysisk arbejde. Vi behandler prompt engineering som fint dansk snedkerhåndværk.
+            AI der besvarer telefonen, sender tilbuddet og udfærdiger fakturaen — mens du er på pladsen. Vi bygger det. Du kører hjem.
           </RevealText>
 
           <motion.div
@@ -132,25 +162,6 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Speed control slider */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={videoReady ? { opacity: 1 } : {}}
-        transition={{ duration: 1, ease: EASING, delay: 1 }}
-        className="absolute bottom-6 right-4 md:bottom-10 md:right-8 z-20 flex items-center gap-3"
-      >
-        <Slider
-          value={[speed]}
-          onValueChange={(v) => setSpeed(v[0])}
-          min={30}
-          max={200}
-          step={10}
-          className="w-24 md:w-32"
-        />
-        <span className="font-mono text-[11px] tracking-wider text-foreground/50 min-w-[3ch] text-right">
-          {speed}%
-        </span>
-      </motion.div>
     </section>
   );
 };

@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import RevealText, { EASING } from "./RevealText";
-import heroImage from "@/assets/hero.jpg";
+import heroImage from "@/assets/hero.webp";
 
 const HaandvaerketSection = () => {
   const ref = useRef(null);
@@ -39,11 +39,9 @@ const HaandvaerketSection = () => {
           initial={{ scale: 1.04 }}
           animate={imageLoaded ? { scale: 1 } : {}}
           transition={{ duration: 1.8, ease: EASING }}
+          loading="lazy"
+          decoding="async"
           className="h-full w-full object-cover"
-          style={{
-            filter: imageLoaded ? "blur(0px)" : "blur(20px)",
-            transition: "filter 1.5s cubic-bezier(0.22, 1, 0.36, 1)",
-          }}
         />
       </motion.div>
 
@@ -67,7 +65,7 @@ const HaandvaerketSection = () => {
               transition={{ duration: 1, ease: EASING, delay: 0.4 }}
               className="mt-6 md:mt-8 max-w-[420px] font-mono text-[12px] md:text-[13px] leading-[1.8] tracking-wide text-foreground/70"
             >
-              Vi behandler prompt engineering som fint dansk snedkerhåndværk. Hvert system bygges med præcision, tålmodighed og respekt for materialet — dine data, dine processer, dit fundament.
+              Vi bygger ikke dashboards du aldrig kigger på. Vi bygger systemer, der gør arbejdet for dig — stille, pålideligt, hver eneste dag. Ingen login. Ingen app. Bare resultater.
             </motion.p>
 
             <motion.p
@@ -77,7 +75,7 @@ const HaandvaerketSection = () => {
               transition={{ duration: 1, ease: EASING, delay: 0.6 }}
               className="mt-6 max-w-[420px] font-mono text-[12px] md:text-[13px] leading-[1.8] tracking-wide text-foreground/70"
             >
-              Ingen skabeloner. Ingen quick-fixes. Kun solide løsninger, der holder.
+              Hvert system tilpasses din virksomhed. Dine priser. Din tone. Din måde at drive forretning på.
             </motion.p>
           </div>
         </div>

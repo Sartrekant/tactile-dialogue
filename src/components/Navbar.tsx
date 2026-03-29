@@ -7,6 +7,7 @@ const Navbar = () => {
   const links = [
     { label: "Værkstedet", href: "#vaerkstedet" },
     { label: "Håndværket", href: "#haandvaerket" },
+    { label: "Priser", href: "#priser" },
     { label: "Kontakt", href: "#kontakt" },
   ];
 
