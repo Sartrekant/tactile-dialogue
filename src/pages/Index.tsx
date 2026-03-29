@@ -2,7 +2,8 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import WorkshopGrid from "@/components/WorkshopGrid";
 import HaandvaerketSection from "@/components/HaandvaerketSection";
-import ContactSection from "@/components/ContactSection";
+import AIContactSection from "@/components/AIContactSection";
+import PricingSection from "@/components/PricingSection";
 import SectionDivider from "@/components/SectionDivider";
 import ScrollReveal from "@/components/ScrollReveal";
 import { motion, useInView } from "framer-motion";
@@ -47,7 +48,11 @@ const Index = () => {
         <HaandvaerketSection />
         <SectionDivider />
         <ScrollReveal>
-          <ContactSection />
+          <PricingSection />
+        </ScrollReveal>
+        <SectionDivider />
+        <ScrollReveal>
+          <AIContactSection />
         </ScrollReveal>
       </main>
       <AnimatedFooter />

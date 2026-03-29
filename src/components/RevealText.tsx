@@ -15,15 +15,18 @@ const RevealText = ({ children, delay = 0, className = "", as = "div" }: RevealT
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const Tag = as;
 
+  // Use <motion.span> with display:block to avoid invalid DOM nesting
+  // when Tag is <p> (div cannot be a child of p)
   return (
     <Tag className={`overflow-hidden ${className}`} ref={ref}>
-      <motion.div
+      <motion.span
+        style={{ display: "block" }}
         initial={{ y: "100%" }}
         animate={isInView ? { y: "0%" } : { y: "100%" }}
         transition={{ duration: 1, ease: EASING, delay }}
       >
         {children}
-      </motion.div>
+      </motion.span>
     </Tag>
   );
 };
