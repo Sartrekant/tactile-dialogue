@@ -1,7 +1,8 @@
 # AGENTS.md — LANDSVIG Codebase Rules
 
 Rules for any AI assistant (Claude, Copilot, Cursor, v0, etc.) operating in this repository.
-Read this file in full before making any changes.
+Read this file in full before making any changes. Also read `CLAUDE.md` for project commands,
+stack details, and file structure reference.
 
 ---
 
@@ -44,6 +45,21 @@ public/           Static files served at root (favicon, robots.txt).
 - No Storybook, no additional routing libraries.
 - No additional UI component libraries (shadcn/ui, Radix, MUI, etc.). Components are built
   from scratch using Tailwind utilities.
+
+### Scaffolding Artifacts — Do Not Mistake for Active Patterns
+
+The following files are Lovable.dev/shadcn scaffolding leftovers. They do NOT represent
+active patterns and must not be expanded upon:
+
+- **`components.json`** — shadcn/ui configuration file. The paths it references
+  (`@/components/ui/`, `@/lib/utils`) do NOT exist. Do not run `npx shadcn add` or
+  any shadcn CLI command against this repo. Do not create `src/components/ui/` or
+  `src/lib/utils.ts`.
+- **`tailwind.config.ts` keyframes** — `accordion-down`/`accordion-up` and sidebar color
+  tokens are template leftovers referencing Radix UI variables. No accordion or sidebar
+  component exists. Do not add components that depend on these.
+- **`darkMode: ["class"]`** in tailwind.config.ts — dark mode class toggle is wired up in
+  the config but intentionally unused. Do not add `dark:` variant classes.
 
 ---
 
@@ -118,9 +134,13 @@ public/           Static files served at root (favicon, robots.txt).
 - Opacity modifiers on semantic tokens are allowed: `text-foreground/70`, `bg-foreground/10`.
 
 ### Border Radius
-- `--radius` is `0.125rem`. The design is intentionally near-square.
-- Use `rounded-sm` for most elements. Do not use `rounded`, `rounded-md`, `rounded-lg`,
-  or `rounded-full` unless for specific micro-elements (e.g. waveform bars in WorkshopGrid).
+- `--radius` is `0.125rem` (2px). The design is intentionally near-square.
+- The tailwind.config.ts uses shadcn-style overrides:
+  - `rounded-lg` = `var(--radius)` = **2px** ← use this as the standard
+  - `rounded-md` = `calc(var(--radius) - 2px)` = 0px
+  - `rounded-sm` = `calc(var(--radius) - 4px)` = -2px (clamps to 0 in browsers)
+- Use `rounded-lg` for most elements. Use `rounded-full` only for pill/circular micro-elements
+  such as waveform bars. Do not use `rounded`, `rounded-md`, or `rounded-sm`.
 
 ### Tailwind Conventions
 - Tailwind utilities only. No custom CSS classes in `index.css` beyond the `@layer base` block
