@@ -103,8 +103,15 @@ active patterns and must not be expanded upon:
   The exception is `index.css` and inline `style={}` transition strings in `.tsx` files where
   Framer Motion is not driving the animation (e.g. the blur-up image fade in
   `HaandvaerketSection` and `AIContactSection`).
-- Scroll-triggered animations use `useInView(ref, { once: true, margin: "-100px" })` unless a
-  different margin is explicitly justified with a comment.
+- Scroll-triggered animations follow a three-tier margin convention based on element role:
+  - **`"-100px"`** — content reveals: text, cards, feature lists, pricing elements, inline
+    `whileInView` paragraphs. This is the default for anything inside a section.
+  - **`"-80px"`** — section/layout wrappers: `ScrollReveal.tsx`, full journal sections.
+    Trigger slightly earlier so the wrapper fades in before inner `-100px` elements.
+  - **`"-50px"`** — decorative micro-elements: `SectionDivider.tsx` lines/ornaments,
+    the `AnimatedFooter` rule line. These are thin visual elements that should appear
+    promptly without waiting deep into the viewport.
+  Do not use any other margin values without a code comment justifying the choice.
 - The motion pattern is always `initial` → `animate` → `transition` (not `variants` unless
   complexity demands it). `whileInView` is acceptable for stateless one-shot reveals without a ref.
 - The hero video renders via a hidden `<video>` streamed to a `<canvas>` via `requestAnimationFrame`.
