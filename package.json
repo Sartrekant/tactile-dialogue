@@ -22,7 +22,8 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "*"
+    "@rollup/rollup-linux-x64-gnu": "*",
+    "@swc/core-linux-x64-gnu": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
