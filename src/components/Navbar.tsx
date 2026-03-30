@@ -5,9 +5,11 @@ import { EASING } from "./RevealText";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const links = [
+    { label: "Kasper", href: "#kasper" },
     { label: "Værkstedet", href: "#vaerkstedet" },
     { label: "Håndværket", href: "#haandvaerket" },
     { label: "Priser", href: "#priser" },
+    { label: "Journalen", href: "#journalen" },
     { label: "Kontakt", href: "#kontakt" },
   ];
 

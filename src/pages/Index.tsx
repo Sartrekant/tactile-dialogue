@@ -1,9 +1,11 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import KasperSection from "@/components/KasperSection";
 import WorkshopGrid from "@/components/WorkshopGrid";
 import HaandvaerketSection from "@/components/HaandvaerketSection";
-import AIContactSection from "@/components/AIContactSection";
 import PricingSection from "@/components/PricingSection";
+import JournalenSection from "@/components/JournalenSection";
+import AIContactSection from "@/components/AIContactSection";
 import SectionDivider from "@/components/SectionDivider";
 import ScrollReveal from "@/components/ScrollReveal";
 import { motion, useInView } from "framer-motion";
@@ -40,17 +42,37 @@ const Index = () => {
       <Navbar />
       <main>
         <HeroSection />
+
         <SectionDivider />
+
+        <ScrollReveal>
+          <KasperSection />
+        </ScrollReveal>
+
+        <SectionDivider variant="ornament" />
+
         <ScrollReveal>
           <WorkshopGrid />
         </ScrollReveal>
-        <SectionDivider variant="ornament" />
-        <HaandvaerketSection />
+
         <SectionDivider />
+
+        <HaandvaerketSection />
+
+        <SectionDivider variant="ornament" />
+
         <ScrollReveal>
           <PricingSection />
         </ScrollReveal>
+
         <SectionDivider />
+
+        <ScrollReveal>
+          <JournalenSection />
+        </ScrollReveal>
+
+        <SectionDivider variant="ornament" />
+
         <ScrollReveal>
           <AIContactSection />
         </ScrollReveal>

@@ -17,6 +17,13 @@ export default {
         serif: ["Playfair Display", "serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
+      transitionTimingFunction: {
+        tactile: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
+      transitionDuration: {
+        slow: "700ms",
+        slower: "1200ms",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
