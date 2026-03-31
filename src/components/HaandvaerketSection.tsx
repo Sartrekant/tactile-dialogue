@@ -2,8 +2,14 @@ import { useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import RevealText, { EASING } from "./RevealText";
 import heroImage from "@/assets/hero.webp";
+import type { SiteContent } from "@/lib/content-types";
+import { DEFAULTS } from "@/lib/content-types";
 
-const HaandvaerketSection = () => {
+interface HaandvaerketSectionProps {
+  content?: SiteContent["metoden"];
+}
+
+const HaandvaerketSection = ({ content = DEFAULTS.metoden }: HaandvaerketSectionProps) => {
   const ref = useRef(null);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -16,7 +22,7 @@ const HaandvaerketSection = () => {
 
   return (
     <section
-      id="haandvaerket"
+      id="metoden"
       ref={ref}
       className="relative min-h-screen overflow-hidden flex items-center"
     >
@@ -55,28 +61,21 @@ const HaandvaerketSection = () => {
         <div className="mx-auto max-w-6xl">
           <div className="max-w-xl">
             <RevealText as="h2" className="font-serif text-[clamp(1.75rem,5vw,3.5rem)] leading-[1.1] tracking-tight text-foreground">
-              Håndværket bag algoritmen.
+              {content.headline}
             </RevealText>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 1, ease: EASING, delay: 0.4 }}
-              className="mt-6 md:mt-8 max-w-[420px] font-mono text-[12px] md:text-[13px] leading-[1.8] tracking-wide text-foreground/70"
-            >
-              Vi bygger ikke dashboards du aldrig kigger på. Vi bygger systemer, der gør arbejdet for dig — stille, pålideligt, hver eneste dag. Ingen login. Ingen app. Bare resultater.
-            </motion.p>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 1, ease: EASING, delay: 0.6 }}
-              className="mt-6 max-w-[420px] font-mono text-[12px] md:text-[13px] leading-[1.8] tracking-wide text-foreground/70"
-            >
-              Hvert system tilpasses din virksomhed. Dine priser. Din tone. Din måde at drive forretning på.
-            </motion.p>
+            {content.paragraphs.map((p, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 1, ease: EASING, delay: 0.4 + i * 0.2 }}
+                className={`${i === 0 ? "mt-6 md:mt-8" : "mt-6"} max-w-[420px] font-mono text-[12px] md:text-[13px] leading-[1.8] tracking-wide text-foreground/70`}
+              >
+                {p}
+              </motion.p>
+            ))}
           </div>
         </div>
       </div>

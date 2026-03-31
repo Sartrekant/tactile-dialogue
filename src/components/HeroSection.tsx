@@ -3,7 +3,15 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import RevealText, { EASING } from "./RevealText";
 import heroVideo from "@/assets/hero-video.mp4";
 
-const HeroSection = () => {
+import type { SiteContent } from "@/lib/content-types";
+import { DEFAULTS } from "@/lib/content-types";
+
+interface HeroSectionProps {
+  onChatOpen?: () => void;
+  content?: SiteContent["hero"];
+}
+
+const HeroSection = ({ onChatOpen, content = DEFAULTS.hero }: HeroSectionProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -137,13 +145,13 @@ const HeroSection = () => {
       <div className="relative z-10 w-full max-w-6xl px-4 md:px-6">
         <div className="max-w-xl">
           <RevealText as="h1" className="font-serif text-[clamp(2rem,6vw,4.5rem)] leading-[1.1] text-foreground">
-            Vi bygger systemet.
-            <br />
-            Så du kan køre hjem.
+            {content.headline.split("\n").map((line, i, arr) => (
+              <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+            ))}
           </RevealText>
 
           <RevealText as="p" delay={0.2} className="mt-6 md:mt-8 max-w-[400px] font-mono text-[12px] md:text-[13px] leading-relaxed tracking-wide text-foreground/70">
-            AI der besvarer telefonen, sender tilbuddet og udfærdiger fakturaen — mens du er på pladsen. Vi bygger det. Du kører hjem.
+            {content.tagline}
           </RevealText>
 
           <motion.div
@@ -152,12 +160,12 @@ const HeroSection = () => {
             transition={{ duration: 1, ease: EASING, delay: 0.6 }}
             className="mt-8 md:mt-12"
           >
-            <a
-              href="#kontakt"
+            <button
+              onClick={onChatOpen}
               className="group inline-flex items-center border border-foreground bg-foreground px-6 py-3.5 md:px-8 md:py-4 font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-background transition-all duration-700 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-15px_rgba(44,46,48,0.15)] rounded-sm"
             >
               Start en samtale
-            </a>
+            </button>
           </motion.div>
         </div>
       </div>

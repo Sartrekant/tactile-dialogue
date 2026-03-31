@@ -1,8 +1,14 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import RevealText, { EASING } from "./RevealText";
+import type { SiteContent } from "@/lib/content-types";
+import { DEFAULTS } from "@/lib/content-types";
 
-const KasperSection = () => {
+interface KasperSectionProps {
+  content?: SiteContent["kasper"];
+}
+
+const KasperSection = ({ content = DEFAULTS.kasper }: KasperSectionProps) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -10,22 +16,29 @@ const KasperSection = () => {
     <section id="kasper" className="px-4 md:px-6 py-20 md:py-32" ref={ref}>
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 gap-12 md:gap-20 md:grid-cols-12">
-          {/* Portrait placeholder */}
+          {/* Portrait */}
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 1.2, ease: EASING }}
             className="md:col-span-5"
           >
-            <div className="aspect-[3/4] w-full overflow-hidden rounded-sm">
-              <div className="h-full w-full bg-foreground/[0.06] flex items-end justify-center">
-                {/* Placeholder — replace with portrait photo */}
-                <div className="w-full h-full bg-gradient-to-b from-foreground/[0.03] to-foreground/[0.08] flex items-center justify-center">
+            <div className="aspect-[3/4] w-full overflow-hidden rounded-sm bg-foreground/[0.06]">
+              {content.portraitUrl ? (
+                <img
+                  src={content.portraitUrl}
+                  alt="Kasper Landsvig"
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-b from-foreground/[0.03] to-foreground/[0.08] flex items-center justify-center">
                   <span className="font-mono text-[11px] tracking-[0.2em] text-foreground/20 uppercase">
                     Portræt
                   </span>
                 </div>
-              </div>
+              )}
             </div>
           </motion.div>
 
@@ -35,7 +48,7 @@ const KasperSection = () => {
               as="div"
               className="mb-4 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/40"
             >
-              Håndværkeren
+              Om mig
             </RevealText>
 
             <RevealText
@@ -52,12 +65,11 @@ const KasperSection = () => {
               transition={{ duration: 1, ease: EASING, delay: 0.4 }}
               className="mt-6 md:mt-8 space-y-5"
             >
-              <p className="max-w-[440px] font-mono text-[12px] md:text-[13px] leading-[1.8] tracking-wide text-foreground/60">
-                Jeg bygger skræddersyede AI-værktøjer til virksomheder, der lever af fysisk arbejde. Hvert system designes med præcision og tålmodighed — som fint snedkerhåndværk.
-              </p>
-              <p className="max-w-[440px] font-mono text-[12px] md:text-[13px] leading-[1.8] tracking-wide text-foreground/60">
-                Ingen skabeloner. Ingen buzzwords. Kun solide løsninger, der giver dig din eftermiddag tilbage.
-              </p>
+              {content.bio.map((paragraph, i) => (
+                <p key={i} className="max-w-[440px] font-mono text-[12px] md:text-[13px] leading-[1.8] tracking-wide text-foreground/60">
+                  {paragraph}
+                </p>
+              ))}
             </motion.div>
 
             {/* Details */}
@@ -67,13 +79,9 @@ const KasperSection = () => {
               transition={{ duration: 0.8, ease: EASING, delay: 0.6 }}
               className="mt-10 md:mt-14 space-y-4"
             >
-              {[
-                { label: "Tilgang", value: "Struktur, tid og ro" },
-                { label: "Værktøj", value: "Prompt engineering & automatisering" },
-                { label: "Sted", value: "Danmark" },
-              ].map((item) => (
+              {content.details.map((item) => (
                 <div key={item.label} className="flex items-baseline gap-4">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground/30 min-w-[80px]">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground/30 min-w-[100px]">
                     {item.label}
                   </span>
                   <span className="font-mono text-[12px] tracking-wide text-foreground/60">
