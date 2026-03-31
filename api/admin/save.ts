@@ -1,4 +1,5 @@
 import { readContent, writeContent } from "../_content";
+import { isAuthenticated, unauthorized } from "../_auth";
 
 export const config = { runtime: "edge" };
 
@@ -6,6 +7,8 @@ export default async function handler(req: Request) {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
+
+  if (!(await isAuthenticated(req))) return unauthorized();
 
   const { section, data } = await req.json();
 

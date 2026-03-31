@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useContent } from "@/hooks/useContent";
 import type { SiteContent, NavStyle, WorkEntry, JournalEntry, NavLink } from "@/lib/content-types";
 
@@ -684,6 +684,13 @@ const TABS: Array<{ id: Tab; label: string }> = [
 const AdminDashboard = () => {
   const { content, loading } = useContent();
   const [activeTab, setActiveTab] = useState<Tab>("tekster");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch("/api/admin/check").then((res) => {
+      if (res.status === 401) navigate("/admin/login", { replace: true });
+    });
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -698,6 +705,15 @@ const AdminDashboard = () => {
           >
             ↗ Åbn side
           </Link>
+          <button
+            onClick={async () => {
+              await fetch("/api/admin/logout", { method: "POST" });
+              navigate("/admin/login");
+            }}
+            className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40 hover:text-foreground transition-colors"
+          >
+            Log ud
+          </button>
         </div>
       </header>
 
