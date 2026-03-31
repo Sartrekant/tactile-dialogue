@@ -10,7 +10,7 @@ interface ChatDrawerProps {
 }
 
 const ChatDrawer = ({ open, onClose }: ChatDrawerProps) => {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({ api: "/api/stream" });
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -88,6 +88,14 @@ const ChatDrawer = ({ open, onClose }: ChatDrawerProps) => {
                     </div>
                   </div>
                 ))}
+
+                {error && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[80%] rounded-sm border border-border bg-background px-4 py-3 font-mono text-[12px] leading-relaxed tracking-wide text-foreground/50">
+                      Noget gik galt. Prøv igen.
+                    </div>
+                  </div>
+                )}
 
                 {isLoading && (
                   <div className="flex justify-start">

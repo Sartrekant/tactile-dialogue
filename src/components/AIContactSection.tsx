@@ -18,6 +18,7 @@ const AIContactSection = ({ content = DEFAULTS.contact }: AIContactSectionProps)
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -31,6 +32,7 @@ const AIContactSection = ({ content = DEFAULTS.contact }: AIContactSectionProps)
     if (!name || !contact || submitting) return;
 
     setSubmitting(true);
+    setSubmitError(false);
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -41,6 +43,7 @@ const AIContactSection = ({ content = DEFAULTS.contact }: AIContactSectionProps)
       if (!res.ok) throw new Error("Submit error");
       setSubmitted(true);
     } catch {
+      setSubmitError(true);
       setSubmitting(false);
     }
   };
@@ -168,6 +171,12 @@ const AIContactSection = ({ content = DEFAULTS.contact }: AIContactSectionProps)
                       placeholder="Hvad har du på hjertet?"
                     />
                   </div>
+
+                  {submitError && (
+                    <p className="font-mono text-[11px] text-red-500">
+                      Noget gik galt. Prøv igen eller skriv direkte til {content.email}.
+                    </p>
+                  )}
 
                   <button
                     type="submit"
