@@ -1,7 +1,6 @@
 import { readContent, writeContent } from "../_content";
 import { isAuthenticated, unauthorized } from "../_auth";
 
-export const config = { runtime: "edge" };
 
 export default async function handler(req: Request) {
   if (req.method !== "POST") {

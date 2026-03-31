@@ -3,7 +3,6 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { readContent } from "./_content";
 import { DEFAULTS } from "../src/lib/content-types";
 
-export const config = { runtime: "edge" };
 
 const ALLOWED_ORIGINS = [
   "https://landsvig.com",

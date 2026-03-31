@@ -1,7 +1,6 @@
 import { readContent } from "./_content";
 import { DEFAULTS } from "../src/lib/content-types";
 
-export const config = { runtime: "edge" };
 
 const CORS_HEADERS = {
   "Content-Type": "application/json",
