@@ -6,6 +6,9 @@
     "api/contact.ts": { "runtime": "edge" },
     "api/stream.ts": { "runtime": "edge" },
     "api/content.ts": { "runtime": "edge" },
+    "api/admin/auth.ts": { "runtime": "edge" },
+    "api/admin/check.ts": { "runtime": "edge" },
+    "api/admin/logout.ts": { "runtime": "edge" },
     "api/admin/save.ts": { "runtime": "edge" },
     "api/admin/upload.ts": { "runtime": "edge" }
   },

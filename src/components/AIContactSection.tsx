@@ -60,7 +60,7 @@ const AIContactSection = ({ content = DEFAULTS.contact }: AIContactSectionProps)
       {/* Background image with scroll-scale and blur-up */}
       <motion.div className="absolute inset-0" style={{ scale }}>
         <motion.img
-          src={contactBg}
+          src={content.backgroundUrl || contactBg}
           alt=""
           onLoad={() => setImageLoaded(true)}
           initial={{ scale: 1.04 }}

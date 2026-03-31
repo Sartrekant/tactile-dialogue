@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+/// <reference types="vitest" />
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -18,6 +19,10 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+  },
+  test: {
+    environment: "node",
+    globals: true,
   },
   build: {
     target: "es2020",

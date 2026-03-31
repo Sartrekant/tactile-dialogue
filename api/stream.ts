@@ -10,7 +10,6 @@ const ALLOWED_ORIGINS = [
   "https://www.landsvig.com",
   "http://localhost:8080",
   "http://localhost:5173",
-  "http://localhost:8081",
 ];
 
 export default async function handler(req: Request) {

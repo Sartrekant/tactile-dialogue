@@ -27,7 +27,7 @@ export async function writeContent(content: SiteContent): Promise<void> {
 }
 
 // Shallow-deep merge: objects are merged, arrays/primitives are replaced
-function deepMerge(target: unknown, source: unknown): unknown {
+export function deepMerge(target: unknown, source: unknown): unknown {
   if (
     source !== null &&
     typeof source === "object" &&
