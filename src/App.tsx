@@ -3,12 +3,14 @@ import { Suspense, lazy } from "react";
 
 const Index = lazy(() => import("./pages/Index.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard.tsx"));
 
 const App = () => (
   <BrowserRouter>
     <Suspense fallback={null}>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
