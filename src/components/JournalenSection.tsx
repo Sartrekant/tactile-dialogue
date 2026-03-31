@@ -1,12 +1,10 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import RevealText, { EASING } from "./RevealText";
+import type { JournalEntry } from "@/lib/content-types";
+import { DEFAULTS } from "@/lib/content-types";
 
-interface EntryProps {
-  number: string;
-  title: string;
-  excerpt: string;
-  tag: string;
+interface EntryProps extends JournalEntry {
   index: number;
 }
 
@@ -56,32 +54,12 @@ const JournalEntry = ({ number, title, excerpt, tag, index }: EntryProps) => {
   );
 };
 
-const JournalenSection = () => {
-  const ref = useRef(null);
+interface JournalenSectionProps {
+  entries?: JournalEntry[];
+}
 
-  const entries = [
-    {
-      number: "01",
-      tag: "Slow Tech",
-      title: "Hvorfor vi ikke kalder det AI",
-      excerpt:
-        "Ordene vi bruger former den virkelighed, vi bygger i. Når vi dropper buzzwords, begynder det rigtige arbejde.",
-    },
-    {
-      number: "02",
-      tag: "Værktøj",
-      title: "En dagseddel, der skriver sig selv",
-      excerpt:
-        "Fra rå tidsregistreringer til et klart overblik — uden at nogen rører et tastatur.",
-    },
-    {
-      number: "03",
-      tag: "Håndværk",
-      title: "Prompt engineering som snedkerarbejde",
-      excerpt:
-        "Det handler ikke om at skrive den perfekte sætning. Det handler om at forstå materialet.",
-    },
-  ];
+const JournalenSection = ({ entries = DEFAULTS.journal }: JournalenSectionProps) => {
+  const ref = useRef(null);
 
   return (
     <section id="journalen" className="px-4 md:px-6 py-20 md:py-32" ref={ref}>
@@ -99,7 +77,7 @@ const JournalenSection = () => {
               delay={0.1}
               className="font-serif text-3xl md:text-5xl text-foreground"
             >
-              Tanker om håndværket
+              Tanker undervejs
             </RevealText>
           </div>
         </div>

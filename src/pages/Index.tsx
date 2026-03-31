@@ -1,16 +1,17 @@
+import { useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import ChatDrawer from "@/components/ChatDrawer";
 import KasperSection from "@/components/KasperSection";
-import WorkshopGrid from "@/components/WorkshopGrid";
+import SelectedWorkSection from "@/components/SelectedWorkSection";
 import HaandvaerketSection from "@/components/HaandvaerketSection";
-import PricingSection from "@/components/PricingSection";
 import JournalenSection from "@/components/JournalenSection";
 import AIContactSection from "@/components/AIContactSection";
 import SectionDivider from "@/components/SectionDivider";
 import ScrollReveal from "@/components/ScrollReveal";
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
 import { EASING } from "@/components/RevealText";
+import { useContent } from "@/hooks/useContent";
 
 const AnimatedFooter = () => {
   const ref = useRef(null);
@@ -37,44 +38,42 @@ const AnimatedFooter = () => {
 };
 
 const Index = () => {
+  const [chatOpen, setChatOpen] = useState(false);
+  const { content } = useContent();
+
   return (
     <>
-      <Navbar />
+      <Navbar nav={content.nav} />
+      <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
       <main>
-        <HeroSection />
+        <HeroSection content={content.hero} onChatOpen={() => setChatOpen(true)} />
 
         <SectionDivider />
 
         <ScrollReveal>
-          <KasperSection />
+          <KasperSection content={content.kasper} />
         </ScrollReveal>
 
         <SectionDivider variant="ornament" />
 
         <ScrollReveal>
-          <WorkshopGrid />
+          <SelectedWorkSection entries={content.work} />
         </ScrollReveal>
 
         <SectionDivider />
 
-        <HaandvaerketSection />
+        <HaandvaerketSection content={content.metoden} />
 
         <SectionDivider variant="ornament" />
 
         <ScrollReveal>
-          <PricingSection />
+          <JournalenSection entries={content.journal} />
         </ScrollReveal>
 
         <SectionDivider />
 
         <ScrollReveal>
-          <JournalenSection />
-        </ScrollReveal>
-
-        <SectionDivider variant="ornament" />
-
-        <ScrollReveal>
-          <AIContactSection />
+          <AIContactSection content={content.contact} />
         </ScrollReveal>
       </main>
       <AnimatedFooter />

@@ -2,9 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export const config = {
-  runtime: "edge",
-};
+export const config = { runtime: "edge" };
 
 /** Escape HTML special characters to prevent XSS in email templates */
 function escapeHtml(str: string): string {
@@ -16,27 +14,26 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#039;");
 }
 
-/** Validate that a string is a reasonable form input (not script injection) */
 function sanitize(input: unknown): string {
   if (typeof input !== "string") return "";
-  // Trim and limit length
   return escapeHtml(input.trim().slice(0, 500));
 }
+
+const ALLOWED_ORIGINS = [
+  "https://landsvig.com",
+  "https://www.landsvig.com",
+  "http://localhost:8080",
+  "http://localhost:5173",
+  "http://localhost:8081",
+];
 
 export default async function handler(req: Request) {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  // Basic origin check — only accept requests from our domain
   const origin = req.headers.get("origin");
-  const allowedOrigins = [
-    "https://landsvig.com",
-    "https://www.landsvig.com",
-    "http://localhost:8080",
-    "http://localhost:5173",
-  ];
-  if (origin && !allowedOrigins.includes(origin)) {
+  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -45,8 +42,7 @@ export default async function handler(req: Request) {
 
     const name = sanitize(body.name);
     const contact = sanitize(body.contact);
-    const companyType = sanitize(body.companyType);
-    const painPoint = sanitize(body.painPoint);
+    const message = sanitize(body.message);
 
     if (!name || !contact) {
       return new Response(
@@ -58,7 +54,7 @@ export default async function handler(req: Request) {
     await resend.emails.send({
       from: "LANDSVIG <noreply@landsvig.com>",
       to: "kasper@landsvig.com",
-      subject: `Ny henvendelse fra ${name}${companyType ? ` — ${companyType}` : ""}`,
+      subject: `Ny henvendelse fra ${name}`,
       html: `
         <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.8; color: #2c2e30;">
           <h2 style="font-family: Georgia, serif; font-weight: normal; margin-bottom: 24px;">
@@ -74,13 +70,9 @@ export default async function handler(req: Request) {
               <td style="padding: 8px 16px 8px 0; color: #999; vertical-align: top;">Kontakt</td>
               <td style="padding: 8px 0;">${contact}</td>
             </tr>
-            ${companyType ? `<tr>
-              <td style="padding: 8px 16px 8px 0; color: #999; vertical-align: top;">Virksomhedstype</td>
-              <td style="padding: 8px 0;">${companyType}</td>
-            </tr>` : ""}
-            ${painPoint ? `<tr>
-              <td style="padding: 8px 16px 8px 0; color: #999; vertical-align: top;">Udfordring</td>
-              <td style="padding: 8px 0;">${painPoint}</td>
+            ${message ? `<tr>
+              <td style="padding: 8px 16px 8px 0; color: #999; vertical-align: top;">Besked</td>
+              <td style="padding: 8px 0;">${message}</td>
             </tr>` : ""}
           </table>
         </div>
