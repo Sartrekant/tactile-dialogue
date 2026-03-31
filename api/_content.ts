@@ -1,6 +1,6 @@
 import { put, list } from "@vercel/blob";
-import { DEFAULTS } from "../src/lib/content-types";
-import type { SiteContent } from "../src/lib/content-types";
+import { DEFAULTS } from "../src/lib/content-types.js";
+import type { SiteContent } from "../src/lib/content-types.js";
 
 const BLOB_NAME = "content.json";
 

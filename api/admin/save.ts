@@ -1,5 +1,5 @@
-import { readContent, writeContent } from "../_content";
-import { isAuthenticated, unauthorized } from "../_auth";
+import { readContent, writeContent } from "../_content.js";
+import { isAuthenticated, unauthorized } from "../_auth.js";
 
 
 export default async function handler(req: Request) {

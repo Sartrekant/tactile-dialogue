@@ -1,5 +1,5 @@
-import { readContent } from "./_content";
-import { DEFAULTS } from "../src/lib/content-types";
+import { readContent } from "./_content.js";
+import { DEFAULTS } from "../src/lib/content-types.js";
 
 
 const CORS_HEADERS = {

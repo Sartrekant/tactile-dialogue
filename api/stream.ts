@@ -1,7 +1,7 @@
 import { streamText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { readContent } from "./_content";
-import { DEFAULTS } from "../src/lib/content-types";
+import { readContent } from "./_content.js";
+import { DEFAULTS } from "../src/lib/content-types.js";
 
 
 const ALLOWED_ORIGINS = [
@@ -37,8 +37,8 @@ export default async function handler(req: Request) {
     model: anthropic("claude-sonnet-4-6"),
     system: systemPrompt,
     messages,
-    maxTokens: 1024,
+    maxOutputTokens: 1024,
   });
 
-  return result.toDataStreamResponse();
+  return result.toTextStreamResponse();
 }
