@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -40,6 +40,12 @@ const AnimatedFooter = () => {
 const Index = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const { content } = useContent();
+
+  useEffect(() => {
+    document.title = content.settings.seoTitle;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute("content", content.settings.seoDescription);
+  }, [content.settings.seoTitle, content.settings.seoDescription]);
 
   return (
     <>

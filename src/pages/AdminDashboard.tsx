@@ -684,13 +684,20 @@ const TABS: Array<{ id: Tab; label: string }> = [
 const AdminDashboard = () => {
   const { content, loading } = useContent();
   const [activeTab, setActiveTab] = useState<Tab>("tekster");
+  const [authChecked, setAuthChecked] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch("/api/admin/check").then((res) => {
-      if (res.status === 401) navigate("/admin/login", { replace: true });
+      if (res.status === 401) {
+        navigate("/admin/login", { replace: true });
+      } else {
+        setAuthChecked(true);
+      }
     });
   }, [navigate]);
+
+  if (!authChecked) return null;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
