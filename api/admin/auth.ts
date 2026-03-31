@@ -1,4 +1,4 @@
-import { createToken, cookieHeader } from "../_auth";
+import { createToken, cookieHeader } from "../_auth.js";
 
 export const config = { runtime: "edge" };
 

@@ -1,4 +1,4 @@
-import { clearCookieHeader } from "../_auth";
+import { clearCookieHeader } from "../_auth.js";
 
 export const config = { runtime: "edge" };
 

@@ -1,4 +1,4 @@
-import { isAuthenticated, unauthorized } from "../_auth";
+import { isAuthenticated, unauthorized } from "../_auth.js";
 
 export const config = { runtime: "edge" };
 

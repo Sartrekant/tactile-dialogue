@@ -32,7 +32,7 @@ export default async function handler(req: Request) {
   const content = await readContent();
 
   // Patch the specific section
-  (content as Record<string, unknown>)[section] = data;
+  (content as unknown as Record<string, unknown>)[section] = data;
 
   await writeContent(content);
 
