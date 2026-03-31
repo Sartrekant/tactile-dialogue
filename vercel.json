@@ -2,16 +2,6 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "functions": {
-    "api/contact.ts": { "runtime": "edge" },
-    "api/stream.ts": { "runtime": "edge" },
-    "api/content.ts": { "runtime": "edge" },
-    "api/admin/auth.ts": { "runtime": "edge" },
-    "api/admin/check.ts": { "runtime": "edge" },
-    "api/admin/logout.ts": { "runtime": "edge" },
-    "api/admin/save.ts": { "runtime": "edge" },
-    "api/admin/upload.ts": { "runtime": "edge" }
-  },
   "rewrites": [
     { "source": "/admin/(.*)", "destination": "/index.html" },
     { "source": "/admin", "destination": "/index.html" }
