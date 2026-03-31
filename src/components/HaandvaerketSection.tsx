@@ -39,7 +39,7 @@ const HaandvaerketSection = ({ content = DEFAULTS.metoden }: HaandvaerketSection
       {/* Background image with scroll-scale and blur-up */}
       <motion.div className="absolute inset-0" style={{ scale }}>
         <motion.img
-          src={heroImage}
+          src={content.backgroundUrl || heroImage}
           alt=""
           onLoad={() => setImageLoaded(true)}
           initial={{ scale: 1.04 }}

@@ -504,20 +504,20 @@ const AktiverTab = ({ content }: { content: SiteContent }) => {
         <AssetUploader
           label="Metoden-baggrund"
           hint="Baggrundsbillede til 'Metoden'-sektionen."
-          currentUrl=""
+          currentUrl={content.metoden.backgroundUrl}
           blobName="metoden-bg.webp"
-          section="__assets"
-          sectionData={{}}
-          field=""
+          section="metoden"
+          sectionData={{ ...content.metoden }}
+          field="backgroundUrl"
         />
         <AssetUploader
           label="Kontakt-baggrund"
           hint="Baggrundsbillede til kontaktsektionen."
-          currentUrl=""
+          currentUrl={content.contact.backgroundUrl}
           blobName="contact-bg.webp"
-          section="__assets"
-          sectionData={{}}
-          field=""
+          section="contact"
+          sectionData={{ ...content.contact }}
+          field="backgroundUrl"
         />
       </div>
     </div>
@@ -544,6 +544,7 @@ const AssetUploader = ({
   const [uploading, setUploading] = useState(false);
   const [url, setUrl] = useState(currentUrl);
   const [error, setError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (file: File) => {
@@ -570,35 +571,52 @@ const AssetUploader = ({
     }
   };
 
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) handleUpload(file);
+  };
+
   return (
     <div>
       <p className={labelCls}>{label}</p>
       <p className="font-mono text-[10px] text-foreground/30 mb-3">{hint}</p>
 
-      {url && (
-        <img
-          src={url}
-          alt=""
-          className="w-32 h-40 object-cover rounded-sm border border-border mb-3"
-        />
-      )}
-
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => inputRef.current?.click()}
-          disabled={uploading}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] border border-border rounded-sm px-4 py-2.5 text-foreground/60 hover:text-foreground hover:border-foreground/40 transition-colors disabled:opacity-40"
-        >
-          {uploading ? "Uploader..." : url ? "Skift billede" : "Upload billede"}
-        </button>
+      <div
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+        className={`border rounded-sm p-4 transition-colors duration-200 ${isDragging ? "border-foreground/40 bg-foreground/4" : "border-border"}`}
+      >
         {url && (
-          <a href={url} target="_blank" rel="noreferrer" className="font-mono text-[10px] text-foreground/30 hover:text-foreground transition-colors">
-            ↗ Åbn
-          </a>
+          <img
+            src={url}
+            alt=""
+            className="w-32 h-40 object-cover rounded-sm border border-border mb-4"
+          />
         )}
-      </div>
 
-      {error && <p className="mt-2 font-mono text-[10px] text-red-400">{error}</p>}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            className="font-mono text-[10px] uppercase tracking-[0.15em] border border-border rounded-sm px-4 py-2.5 text-foreground/60 hover:text-foreground hover:border-foreground/40 transition-colors disabled:opacity-40"
+          >
+            {uploading ? "Uploader..." : url ? "Skift billede" : "Upload billede"}
+          </button>
+          {url && (
+            <a href={url} target="_blank" rel="noreferrer" className="font-mono text-[10px] text-foreground/30 hover:text-foreground transition-colors">
+              ↗ Åbn
+            </a>
+          )}
+          {!uploading && (
+            <span className="font-mono text-[10px] text-foreground/20">eller træk hertil</span>
+          )}
+        </div>
+
+        {error && <p className="mt-3 font-mono text-[10px] text-red-400">{error}</p>}
+      </div>
 
       <input
         ref={inputRef}

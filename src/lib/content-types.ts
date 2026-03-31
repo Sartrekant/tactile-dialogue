@@ -35,12 +35,14 @@ export interface SiteContent {
   metoden: {
     headline: string;
     paragraphs: [string, string];
+    backgroundUrl: string;
   };
   journal: JournalEntry[];
   contact: {
     headline: string;
     tagline: string;
     email: string;
+    backgroundUrl: string;
   };
   nav: {
     style: NavStyle;
@@ -115,6 +117,7 @@ export const DEFAULTS: SiteContent = {
       "Jeg begynder altid med problemet — ikke teknologien. En god AI-løsning er usynlig: den bare virker, stille og pålideligt, uden at nogen skal lære et nyt system.",
       "Det kræver nysgerrighed, tålmodighed og vilje til at forstå domænet grundigt. Prompt engineering er ikke et trick — det er et håndværk.",
     ],
+    backgroundUrl: "",
   },
   journal: [
     {
@@ -144,6 +147,7 @@ export const DEFAULTS: SiteContent = {
     tagline:
       "Har du et projekt du gerne vil drøfte, eller vil du bare høre mere om hvad jeg laver? Skriv til mig — jeg svarer inden for 24 timer.",
     email: "kasper@landsvig.com",
+    backgroundUrl: "",
   },
   nav: {
     style: "topbar",
