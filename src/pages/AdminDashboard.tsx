@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext, createContext, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useContent } from "@/hooks/useContent";
 import type { SiteContent, NavStyle, WorkEntry, JournalEntry, NavLink } from "@/lib/content-types";
@@ -17,23 +17,19 @@ const labelCls =
 const sectionHeadingCls =
   "font-serif text-xl text-foreground mb-6";
 
-const SaveButton = ({
-  saving,
-  saved,
-  onClick,
-}: {
-  saving: boolean;
-  saved: boolean;
-  onClick: () => void;
-}) => (
-  <button
-    onClick={onClick}
-    disabled={saving}
-    className="mt-8 bg-foreground px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-background rounded-sm transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-40"
-  >
-    {saving ? "Gemmer..." : saved ? "Gemt ✓" : "Gem ændringer"}
-  </button>
-);
+// ─── Save status context ──────────────────────────────────────────────────────
+
+interface SaveStatusCtx {
+  notifySaving: () => void;
+  notifySaved: () => void;
+  notifyError: () => void;
+}
+
+const SaveStatusContext = createContext<SaveStatusCtx>({
+  notifySaving: () => {},
+  notifySaved: () => {},
+  notifyError: () => {},
+});
 
 async function saveSection(section: string, data: unknown): Promise<boolean> {
   try {
@@ -49,20 +45,73 @@ async function saveSection(section: string, data: unknown): Promise<boolean> {
 }
 
 function useSave() {
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  const save = async (section: string, data: unknown) => {
-    setSaving(true);
-    const ok = await saveSection(section, data);
-    setSaving(false);
-    if (ok) {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    }
+  const ctx = useContext(SaveStatusContext);
+  return {
+    save: async (section: string, data: unknown) => {
+      ctx.notifySaving();
+      const ok = await saveSection(section, data);
+      if (ok) ctx.notifySaved(); else ctx.notifyError();
+    },
   };
+}
 
-  return { saving, saved, save };
+function useAutosave(section: string, getData: () => unknown, deps: unknown[]) {
+  const { save } = useSave();
+  const saveRef = useRef(save);
+  const getDataRef = useRef(getData);
+  saveRef.current = save;
+  getDataRef.current = getData;
+  const isFirst = useRef(true);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    if (isFirst.current) { isFirst.current = false; return; }
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => saveRef.current(section, getDataRef.current()), 2000);
+    return () => clearTimeout(timer.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
+
+// ─── Reorder helpers ──────────────────────────────────────────────────────────
+
+const reorderBtnCls =
+  "font-mono text-[11px] text-foreground/30 hover:text-foreground transition-colors px-1 disabled:opacity-20 disabled:cursor-not-allowed";
+
+function ReorderButtons<T>({
+  entries,
+  index,
+  setEntries,
+}: {
+  entries: T[];
+  index: number;
+  setEntries: (next: T[]) => void;
+}) {
+  const swap = (a: number, b: number) => {
+    const next = [...entries];
+    [next[a], next[b]] = [next[b], next[a]];
+    setEntries(next);
+  };
+  return (
+    <>
+      <button
+        className={reorderBtnCls}
+        disabled={index === 0}
+        onClick={() => swap(index - 1, index)}
+        title="Flyt op"
+      >
+        ↑
+      </button>
+      <button
+        className={reorderBtnCls}
+        disabled={index === entries.length - 1}
+        onClick={() => swap(index, index + 1)}
+        title="Flyt ned"
+      >
+        ↓
+      </button>
+    </>
+  );
 }
 
 // ─── Tekster Tab ─────────────────────────────────────────────────────────────
@@ -112,7 +161,7 @@ const TeksterTab = ({ content }: { content: SiteContent }) => {
 const HeroEditor = ({ content }: { content: SiteContent }) => {
   const [headline, setHeadline] = useState(content.hero.headline);
   const [tagline, setTagline] = useState(content.hero.tagline);
-  const { saving, saved, save } = useSave();
+  useAutosave("hero", () => ({ headline, tagline }), [headline, tagline]);
 
   return (
     <div>
@@ -132,7 +181,6 @@ const HeroEditor = ({ content }: { content: SiteContent }) => {
           <label className={labelCls}>Undertekst</label>
           <textarea className={textareaCls} rows={3} value={tagline} onChange={(e) => setTagline(e.target.value)} />
         </div>
-        <SaveButton saving={saving} saved={saved} onClick={() => save("hero", { headline, tagline })} />
       </div>
     </div>
   );
@@ -141,7 +189,7 @@ const HeroEditor = ({ content }: { content: SiteContent }) => {
 const KasperEditor = ({ content }: { content: SiteContent }) => {
   const [bio, setBio] = useState<[string, string, string]>([...content.kasper.bio] as [string, string, string]);
   const [details, setDetails] = useState(content.kasper.details);
-  const { saving, saved, save } = useSave();
+  useAutosave("kasper", () => ({ ...content.kasper, bio, details }), [bio, details]);
 
   return (
     <div>
@@ -181,7 +229,6 @@ const KasperEditor = ({ content }: { content: SiteContent }) => {
             ))}
           </div>
         </div>
-        <SaveButton saving={saving} saved={saved} onClick={() => save("kasper", { ...content.kasper, bio, details })} />
       </div>
     </div>
   );
@@ -191,7 +238,7 @@ const MetodenEditor = ({ content }: { content: SiteContent }) => {
   const [headline, setHeadline] = useState(content.metoden.headline);
   const [p0, setP0] = useState(content.metoden.paragraphs[0]);
   const [p1, setP1] = useState(content.metoden.paragraphs[1]);
-  const { saving, saved, save } = useSave();
+  useAutosave("metoden", () => ({ headline, paragraphs: [p0, p1] }), [headline, p0, p1]);
 
   return (
     <div>
@@ -209,7 +256,6 @@ const MetodenEditor = ({ content }: { content: SiteContent }) => {
           <label className={labelCls}>Afsnit 2</label>
           <textarea className={textareaCls} rows={4} value={p1} onChange={(e) => setP1(e.target.value)} />
         </div>
-        <SaveButton saving={saving} saved={saved} onClick={() => save("metoden", { headline, paragraphs: [p0, p1] })} />
       </div>
     </div>
   );
@@ -217,11 +263,10 @@ const MetodenEditor = ({ content }: { content: SiteContent }) => {
 
 const JournalEditor = ({ content }: { content: SiteContent }) => {
   const [entries, setEntries] = useState<JournalEntry[]>(content.journal);
-  const { saving, saved, save } = useSave();
+  useAutosave("journal", () => entries, [entries]);
 
   const update = (i: number, field: keyof JournalEntry, value: string) => {
-    const next = entries.map((e, idx) => idx === i ? { ...e, [field]: value } : e);
-    setEntries(next);
+    setEntries(entries.map((e, idx) => idx === i ? { ...e, [field]: value } : e));
   };
 
   const add = () =>
@@ -237,9 +282,12 @@ const JournalEditor = ({ content }: { content: SiteContent }) => {
           <div key={i} className="border border-border rounded-sm p-4 space-y-4">
             <div className="flex items-center justify-between mb-2">
               <span className="font-mono text-[10px] text-foreground/40">Indlæg {entry.number}</span>
-              <button onClick={() => remove(i)} className="font-mono text-[10px] text-red-400 hover:text-red-600 transition-colors">
-                Slet
-              </button>
+              <div className="flex items-center gap-2">
+                <ReorderButtons entries={entries} index={i} setEntries={setEntries} />
+                <button onClick={() => remove(i)} className="font-mono text-[10px] text-red-400 hover:text-red-600 transition-colors">
+                  Slet
+                </button>
+              </div>
             </div>
             <div>
               <label className={labelCls}>Tag</label>
@@ -262,8 +310,6 @@ const JournalEditor = ({ content }: { content: SiteContent }) => {
         >
           + Tilføj indlæg
         </button>
-
-        <SaveButton saving={saving} saved={saved} onClick={() => save("journal", entries)} />
       </div>
     </div>
   );
@@ -273,7 +319,7 @@ const ContactEditor = ({ content }: { content: SiteContent }) => {
   const [headline, setHeadline] = useState(content.contact.headline);
   const [tagline, setTagline] = useState(content.contact.tagline);
   const [email, setEmail] = useState(content.contact.email);
-  const { saving, saved, save } = useSave();
+  useAutosave("contact", () => ({ headline, tagline, email }), [headline, tagline, email]);
 
   return (
     <div>
@@ -291,7 +337,6 @@ const ContactEditor = ({ content }: { content: SiteContent }) => {
           <label className={labelCls}>Email</label>
           <input className={inputCls} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
-        <SaveButton saving={saving} saved={saved} onClick={() => save("contact", { headline, tagline, email })} />
       </div>
     </div>
   );
@@ -301,7 +346,7 @@ const ContactEditor = ({ content }: { content: SiteContent }) => {
 
 const ProjekterTab = ({ content }: { content: SiteContent }) => {
   const [entries, setEntries] = useState<WorkEntry[]>(content.work);
-  const { saving, saved, save } = useSave();
+  useAutosave("work", () => entries, [entries]);
 
   const update = (i: number, field: keyof WorkEntry, value: string) => {
     setEntries(entries.map((e, idx) => idx === i ? { ...e, [field]: value } : e));
@@ -321,9 +366,12 @@ const ProjekterTab = ({ content }: { content: SiteContent }) => {
           <div key={i} className="border border-border rounded-sm p-4 space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[10px] text-foreground/40">#{entry.number}</span>
-              <button onClick={() => remove(i)} className="font-mono text-[10px] text-red-400 hover:text-red-600 transition-colors">
-                Slet
-              </button>
+              <div className="flex items-center gap-2">
+                <ReorderButtons entries={entries} index={i} setEntries={setEntries} />
+                <button onClick={() => remove(i)} className="font-mono text-[10px] text-red-400 hover:text-red-600 transition-colors">
+                  Slet
+                </button>
+              </div>
             </div>
             <div>
               <label className={labelCls}>Titel</label>
@@ -346,8 +394,6 @@ const ProjekterTab = ({ content }: { content: SiteContent }) => {
         >
           + Tilføj projekt
         </button>
-
-        <SaveButton saving={saving} saved={saved} onClick={() => save("work", entries)} />
       </div>
     </div>
   );
@@ -366,7 +412,7 @@ const NAV_STYLES: Array<{ id: NavStyle; label: string; description: string }> = 
 const NavigationTab = ({ content }: { content: SiteContent }) => {
   const [style, setStyle] = useState<NavStyle>(content.nav.style);
   const [links, setLinks] = useState<NavLink[]>(content.nav.links);
-  const { saving, saved, save } = useSave();
+  useAutosave("nav", () => ({ style, links }), [style, links]);
 
   const updateLink = (i: number, field: "label" | "href" | "to", value: string) => {
     setLinks(links.map((l, idx) => idx === i ? { ...l, [field]: value } : l));
@@ -435,8 +481,6 @@ const NavigationTab = ({ content }: { content: SiteContent }) => {
       >
         + Tilføj link
       </button>
-
-      <SaveButton saving={saving} saved={saved} onClick={() => save("nav", { style, links })} />
     </div>
   );
 };
@@ -581,16 +625,26 @@ const IndstillingerTab = ({ content }: { content: SiteContent }) => {
   const [github, setGithub] = useState(content.settings.social?.github ?? "");
   const [linkedin, setLinkedin] = useState(content.settings.social?.linkedin ?? "");
   const [twitter, setTwitter] = useState(content.settings.social?.twitter ?? "");
-  const { saving, saved, save } = useSave();
+  useAutosave("settings", () => ({
+    availability,
+    seoTitle,
+    seoDescription,
+    chatPrompt,
+    social: { github, linkedin, twitter },
+  }), [availability, seoTitle, seoDescription, chatPrompt, github, linkedin, twitter]);
 
-  const handleSave = () =>
-    save("settings", {
-      availability,
-      seoTitle,
-      seoDescription,
-      chatPrompt,
-      social: { github, linkedin, twitter },
-    });
+  const handleExport = async () => {
+    const res = await fetch("/api/content");
+    if (!res.ok) return;
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "content.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="max-w-lg space-y-10">
@@ -664,7 +718,19 @@ const IndstillingerTab = ({ content }: { content: SiteContent }) => {
         ))}
       </div>
 
-      <SaveButton saving={saving} saved={saved} onClick={handleSave} />
+      {/* Export */}
+      <div className="border-t border-border pt-8">
+        <p className={labelCls}>Eksportér indhold</p>
+        <p className="font-mono text-[10px] text-foreground/30 mb-4">
+          Download det aktuelle indhold som JSON. Kan gemmes i repo som backup.
+        </p>
+        <button
+          onClick={handleExport}
+          className="font-mono text-[10px] uppercase tracking-[0.15em] border border-border rounded-sm px-4 py-2.5 text-foreground/60 hover:text-foreground hover:border-foreground/40 transition-colors"
+        >
+          ↓ Download content.json
+        </button>
+      </div>
     </div>
   );
 };
@@ -681,10 +747,14 @@ const TABS: Array<{ id: Tab; label: string }> = [
   { id: "indstillinger", label: "Indstillinger" },
 ];
 
+type SaveStatus = "idle" | "saving" | "saved" | "error";
+
 const AdminDashboard = () => {
   const { content, loading } = useContent();
   const [activeTab, setActiveTab] = useState<Tab>("tekster");
   const [authChecked, setAuthChecked] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const savedTimer = useRef<ReturnType<typeof setTimeout>>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -697,69 +767,92 @@ const AdminDashboard = () => {
     });
   }, [navigate]);
 
+  const ctxValue = useMemo<SaveStatusCtx>(() => ({
+    notifySaving: () => setSaveStatus("saving"),
+    notifySaved: () => {
+      setSaveStatus("saved");
+      clearTimeout(savedTimer.current);
+      savedTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
+    },
+    notifyError: () => setSaveStatus("error"),
+  }), []);
+
   if (!authChecked) return null;
 
+  const statusLabel =
+    saveStatus === "saving" ? "Gemmer..."
+    : saveStatus === "saved" ? "Alle ændringer gemt"
+    : saveStatus === "error" ? "Gem mislykkedes"
+    : null;
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Top bar */}
-      <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between px-6 py-4 border-b border-border bg-background/90 backdrop-blur-md">
-        <span className="font-serif text-base text-foreground">LANDSVIG Admin</span>
-        <div className="flex items-center gap-6">
-          <Link
-            to="/"
-            target="_blank"
-            className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40 hover:text-foreground transition-colors"
-          >
-            ↗ Åbn side
-          </Link>
-          <button
-            onClick={async () => {
-              await fetch("/api/admin/logout", { method: "POST" });
-              navigate("/admin/login");
-            }}
-            className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40 hover:text-foreground transition-colors"
-          >
-            Log ud
-          </button>
+    <SaveStatusContext.Provider value={ctxValue}>
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Top bar */}
+        <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between px-6 py-4 border-b border-border bg-background/90 backdrop-blur-md">
+          <span className="font-serif text-base text-foreground">LANDSVIG Admin</span>
+          <div className="flex items-center gap-6">
+            {statusLabel && (
+              <span className={`font-mono text-[10px] transition-opacity duration-300 ${saveStatus === "error" ? "text-red-400" : "text-foreground/40"}`}>
+                {statusLabel}
+              </span>
+            )}
+            <Link
+              to="/"
+              target="_blank"
+              className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40 hover:text-foreground transition-colors"
+            >
+              ↗ Åbn side
+            </Link>
+            <button
+              onClick={async () => {
+                await fetch("/api/admin/logout", { method: "POST" });
+                navigate("/admin/login");
+              }}
+              className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40 hover:text-foreground transition-colors"
+            >
+              Log ud
+            </button>
+          </div>
+        </header>
+
+        <div className="flex flex-1 pt-[57px]">
+          {/* Sidebar */}
+          <aside className="fixed left-0 top-[57px] bottom-0 w-48 border-r border-border bg-background px-4 py-8">
+            <nav className="space-y-1">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full text-left font-mono text-[11px] uppercase tracking-[0.15em] px-3 py-2.5 rounded-sm transition-colors duration-200 ${
+                    activeTab === tab.id
+                      ? "bg-foreground/8 text-foreground"
+                      : "text-foreground/40 hover:text-foreground/70 hover:bg-foreground/4"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+          </aside>
+
+          {/* Main content */}
+          <main className="flex-1 ml-48 overflow-y-auto px-10 py-10 min-h-[calc(100vh-57px)]">
+            {loading ? (
+              <p className="font-mono text-[11px] text-foreground/30">Henter indhold...</p>
+            ) : (
+              <>
+                {activeTab === "tekster" && <TeksterTab content={content} />}
+                {activeTab === "projekter" && <ProjekterTab content={content} />}
+                {activeTab === "navigation" && <NavigationTab content={content} />}
+                {activeTab === "aktiver" && <AktiverTab content={content} />}
+                {activeTab === "indstillinger" && <IndstillingerTab content={content} />}
+              </>
+            )}
+          </main>
         </div>
-      </header>
-
-      <div className="flex flex-1 pt-[57px]">
-        {/* Sidebar */}
-        <aside className="fixed left-0 top-[57px] bottom-0 w-48 border-r border-border bg-background px-4 py-8">
-          <nav className="space-y-1">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full text-left font-mono text-[11px] uppercase tracking-[0.15em] px-3 py-2.5 rounded-sm transition-colors duration-200 ${
-                  activeTab === tab.id
-                    ? "bg-foreground/8 text-foreground"
-                    : "text-foreground/40 hover:text-foreground/70 hover:bg-foreground/4"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </aside>
-
-        {/* Main content */}
-        <main className="flex-1 ml-48 overflow-y-auto px-10 py-10 min-h-[calc(100vh-57px)]">
-          {loading ? (
-            <p className="font-mono text-[11px] text-foreground/30">Henter indhold...</p>
-          ) : (
-            <>
-              {activeTab === "tekster" && <TeksterTab content={content} />}
-              {activeTab === "projekter" && <ProjekterTab content={content} />}
-              {activeTab === "navigation" && <NavigationTab content={content} />}
-              {activeTab === "aktiver" && <AktiverTab content={content} />}
-              {activeTab === "indstillinger" && <IndstillingerTab content={content} />}
-            </>
-          )}
-        </main>
       </div>
-    </div>
+    </SaveStatusContext.Provider>
   );
 };
 
