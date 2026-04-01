@@ -3,6 +3,10 @@ import type { SiteContent } from "../src/lib/content-types.js";
 
 const BLOB_NAME = "content.json";
 
+// Cached blob URL — avoids paying the blobList() cost on every request within
+// the same function instance (cold start pays once, warm calls reuse the URL).
+let cachedBlobUrl: string | null = null;
+
 function blobBase(): string {
   return process.env.VERCEL_BLOB_API_URL ?? "https://blob.vercel-storage.com";
 }
@@ -43,13 +47,24 @@ async function blobPut(pathname: string, body: string | Blob, contentType: strin
 export async function readContent(): Promise<SiteContent> {
   if (!blobToken()) return structuredClone(DEFAULTS);
   try {
-    const blobs = await blobList(BLOB_NAME);
-    if (blobs.length === 0) return structuredClone(DEFAULTS);
-    const res = await fetch(blobs[0].url, { cache: "no-store" });
-    if (!res.ok) return structuredClone(DEFAULTS);
+    // Use the cached URL when available; only pay the blobList cost once per
+    // cold start. If the cached URL returns a non-OK response, clear it and
+    // fall through to re-list so a re-uploaded blob is found.
+    if (!cachedBlobUrl) {
+      const blobs = await blobList(BLOB_NAME);
+      if (blobs.length === 0) return structuredClone(DEFAULTS);
+      cachedBlobUrl = blobs[0].url;
+    }
+    const res = await fetch(cachedBlobUrl, { cache: "no-cache" });
+    if (!res.ok) {
+      // Stale cached URL — clear it and retry with a fresh list next call.
+      cachedBlobUrl = null;
+      return structuredClone(DEFAULTS);
+    }
     const data = (await res.json()) as unknown;
     return deepMerge(structuredClone(DEFAULTS), data) as SiteContent;
   } catch {
+    cachedBlobUrl = null;
     return structuredClone(DEFAULTS);
   }
 }
