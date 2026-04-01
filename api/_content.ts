@@ -1,17 +1,53 @@
-import { put, list } from "@vercel/blob";
 import { DEFAULTS } from "../src/lib/content-types.js";
 import type { SiteContent } from "../src/lib/content-types.js";
 
 const BLOB_NAME = "content.json";
 
+function blobBase(): string {
+  return process.env.VERCEL_BLOB_API_URL ?? "https://blob.vercel-storage.com";
+}
+
+function blobToken(): string {
+  return process.env.BLOB_READ_WRITE_TOKEN ?? "";
+}
+
+async function blobList(prefix: string): Promise<Array<{ url: string }>> {
+  const token = blobToken();
+  if (!token) return [];
+  const res = await fetch(
+    `${blobBase()}/?prefix=${encodeURIComponent(prefix)}&limit=1`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if (!res.ok) return [];
+  const data = (await res.json()) as { blobs?: Array<{ url: string }> };
+  return data.blobs ?? [];
+}
+
+async function blobPut(pathname: string, body: string | Blob, contentType: string): Promise<{ url: string }> {
+  const token = blobToken();
+  if (!token) throw new Error("BLOB_READ_WRITE_TOKEN not configured");
+  const res = await fetch(`${blobBase()}/${pathname}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "content-type": contentType,
+      "x-add-random-suffix": "0",
+    },
+    // body cast needed: File/Blob/string all valid fetch bodies but TS types vary across runtimes
+    body: body as BodyInit,
+  });
+  if (!res.ok) throw new Error(`Blob write failed: ${res.status}`);
+  return (await res.json()) as { url: string };
+}
+
 export async function readContent(): Promise<SiteContent> {
+  if (!blobToken()) return structuredClone(DEFAULTS);
   try {
-    const { blobs } = await list({ prefix: BLOB_NAME, limit: 1 });
+    const blobs = await blobList(BLOB_NAME);
     if (blobs.length === 0) return structuredClone(DEFAULTS);
     const res = await fetch(blobs[0].url, { cache: "no-store" });
     if (!res.ok) return structuredClone(DEFAULTS);
-    const data = await res.json();
-    // Deep merge with defaults so new fields added later are always present
+    const data = (await res.json()) as unknown;
     return deepMerge(structuredClone(DEFAULTS), data) as SiteContent;
   } catch {
     return structuredClone(DEFAULTS);
@@ -19,11 +55,7 @@ export async function readContent(): Promise<SiteContent> {
 }
 
 export async function writeContent(content: SiteContent): Promise<void> {
-  await put(BLOB_NAME, JSON.stringify(content), {
-    access: "public",
-    addRandomSuffix: false,
-    contentType: "application/json",
-  });
+  await blobPut(BLOB_NAME, JSON.stringify(content), "application/json");
 }
 
 // Shallow-deep merge: objects are merged, arrays/primitives are replaced
