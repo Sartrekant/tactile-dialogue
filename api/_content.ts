@@ -71,6 +71,7 @@ export async function readContent(): Promise<SiteContent> {
 
 export async function writeContent(content: SiteContent): Promise<void> {
   await blobPut(BLOB_NAME, JSON.stringify(content), "application/json");
+  cachedBlobUrl = null; // invalidate cache so next read re-discovers the new URL
 }
 
 // Shallow-deep merge: objects are merged, arrays/primitives are replaced
