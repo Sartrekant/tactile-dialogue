@@ -40,75 +40,83 @@ const NavTopbar = ({ links }: { links: NavLinkType[] }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <motion.nav
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.2 }}
-      className="fixed top-0 left-0 right-0 z-40 border-b border-border backdrop-blur-md"
-      style={{ backgroundColor: "rgba(249, 248, 244, 0.8)" }}
-    >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-6 md:py-5">
-        <a href="#" className="font-serif text-lg md:text-xl tracking-tight text-foreground">
-          LANDSVIG
-        </a>
-
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-8">
-          {links.map((link) => (
-            <NavLinkItem key={link.label} item={link} />
-          ))}
+    <>
+      {/* Header bar — negative space, only brand + menu trigger */}
+      <motion.header
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="fixed top-0 left-0 right-0 z-40"
+        style={{ backgroundColor: "rgba(249, 248, 244, 0.85)", backdropFilter: "blur(12px)" }}
+      >
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 md:px-6 md:py-6">
+          <Link to="/" className="font-serif text-lg md:text-xl tracking-tight text-foreground">
+            LANDSVIG
+          </Link>
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/50 hover:text-foreground transition-colors duration-500"
+            aria-label="Åbn menu"
+          >
+            Menu
+          </button>
         </div>
+      </motion.header>
 
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden flex flex-col gap-[5px] p-1"
-          aria-label="Menu"
-        >
-          <motion.span
-            animate={menuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
-            transition={{ duration: 0.6, ease: EASING }}
-            className="block h-px w-5 bg-foreground origin-center"
-          />
-          <motion.span
-            animate={menuOpen ? { opacity: 0 } : { opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="block h-px w-5 bg-foreground"
-          />
-          <motion.span
-            animate={menuOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
-            transition={{ duration: 0.6, ease: EASING }}
-            className="block h-px w-5 bg-foreground origin-center"
-          />
-        </button>
-      </div>
-
-      {/* Mobile menu */}
+      {/* Fullscreen overlay */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.6, ease: EASING }}
-            className="md:hidden overflow-hidden border-t border-border"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: EASING }}
+            className="fixed inset-0 z-50 flex flex-col"
+            style={{ backgroundColor: "rgba(249, 248, 244, 0.98)" }}
           >
-            <div className="flex flex-col gap-6 px-4 py-8">
-              {links.map((link, i) => (
-                <motion.div
-                  key={link.label}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, ease: EASING, delay: i * 0.1 }}
-                >
-                  <NavLinkItem item={link} onClick={() => setMenuOpen(false)} />
-                </motion.div>
-              ))}
+            {/* Overlay header */}
+            <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-5 md:px-6 md:py-6">
+              <Link
+                to="/"
+                onClick={() => setMenuOpen(false)}
+                className="font-serif text-lg md:text-xl tracking-tight text-foreground/30"
+              >
+                LANDSVIG
+              </Link>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/50 hover:text-foreground transition-colors duration-500"
+                aria-label="Luk menu"
+              >
+                Luk
+              </button>
             </div>
+
+            {/* Links */}
+            <nav className="flex-1 flex flex-col justify-center px-4 md:px-6">
+              <div className="mx-auto w-full max-w-6xl">
+                {links.map((link, i) => (
+                  <motion.div
+                    key={link.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.5, ease: EASING, delay: i * 0.08 }}
+                    className="border-b border-border py-6 md:py-8 first:border-t"
+                  >
+                    <NavLinkItem
+                      item={link}
+                      onClick={() => setMenuOpen(false)}
+                      className="font-serif text-[clamp(2rem,6vw,4rem)] text-foreground/50 hover:text-foreground transition-colors duration-500 leading-none"
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </nav>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </>
   );
 };
 

@@ -1,6 +1,7 @@
 import { readContent, writeContent } from "../_content.js";
 import { isAuthenticated, unauthorized } from "../_auth.js";
 
+export const config = { runtime: "edge" };
 
 export default async function handler(req: Request) {
   if (req.method !== "POST") {
@@ -10,7 +11,7 @@ export default async function handler(req: Request) {
   if (!(await isAuthenticated(req))) return unauthorized();
 
   const VALID_SECTIONS = new Set([
-    "hero", "kasper", "work", "metoden", "journal", "contact", "nav", "settings",
+    "hero", "kasper", "work", "metoden", "journal", "contact", "nav", "settings", "ressourcer",
   ]);
 
   const { section, data } = await req.json();

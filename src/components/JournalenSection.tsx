@@ -1,8 +1,17 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import RevealText, { EASING } from "./RevealText";
 import type { JournalEntry } from "@/lib/content-types";
 import { DEFAULTS } from "@/lib/content-types";
+
+const SLUG_MAP: Record<string, string> = {
+  "01": "prompt-engineering-er-ikke-magi",
+  "02": "hvornaar-er-en-prototype-god-nok",
+  "03": "structured-outputs-aendrede-min-arbejdsgang",
+};
+
+const RESSOURCE_PATH = "/ressourcer";
 
 interface EntryProps extends JournalEntry {
   index: number;
@@ -11,6 +20,40 @@ interface EntryProps extends JournalEntry {
 const JournalEntry = ({ number, title, excerpt, tag, index }: EntryProps) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const slug = SLUG_MAP[number];
+
+  const inner = (
+    <div className="flex items-start gap-4 md:gap-8">
+      {/* Entry number */}
+      <span className="font-mono text-[11px] text-foreground/20 tracking-wider pt-1 min-w-[28px]">
+        {number}
+      </span>
+
+      <div className="flex-1">
+        {/* Tag */}
+        <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/30 mb-3 block">
+          {tag}
+        </span>
+
+        {/* Title */}
+        <h3 className="font-serif text-xl md:text-2xl text-foreground leading-[1.25] transition-colors duration-700 group-hover:text-foreground/70">
+          {title}
+        </h3>
+
+        {/* Excerpt */}
+        <p className="mt-3 max-w-[520px] font-mono text-[12px] leading-[1.8] tracking-wide text-foreground/40 transition-colors duration-700 group-hover:text-foreground/55">
+          {excerpt}
+        </p>
+      </div>
+
+      {/* Arrow */}
+      <motion.span
+        className="font-mono text-[13px] text-foreground/15 pt-1 transition-all duration-700 group-hover:text-foreground/40 group-hover:translate-x-1"
+      >
+        →
+      </motion.span>
+    </div>
+  );
 
   return (
     <motion.article
@@ -18,38 +61,15 @@ const JournalEntry = ({ number, title, excerpt, tag, index }: EntryProps) => {
       initial={{ opacity: 0, y: 24 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.8, ease: EASING, delay: index * 0.12 }}
-      className="group cursor-pointer py-8 md:py-10 border-b border-border last:border-b-0 transition-colors duration-700"
+      className="py-8 md:py-10 border-b border-border last:border-b-0"
     >
-      <div className="flex items-start gap-4 md:gap-8">
-        {/* Entry number */}
-        <span className="font-mono text-[11px] text-foreground/20 tracking-wider pt-1 min-w-[28px]">
-          {number}
-        </span>
-
-        <div className="flex-1">
-          {/* Tag */}
-          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/30 mb-3 block">
-            {tag}
-          </span>
-
-          {/* Title */}
-          <h3 className="font-serif text-xl md:text-2xl text-foreground leading-[1.25] transition-colors duration-700 group-hover:text-foreground/70">
-            {title}
-          </h3>
-
-          {/* Excerpt */}
-          <p className="mt-3 max-w-[520px] font-mono text-[12px] leading-[1.8] tracking-wide text-foreground/40 transition-colors duration-700 group-hover:text-foreground/55">
-            {excerpt}
-          </p>
-        </div>
-
-        {/* Arrow */}
-        <motion.span
-          className="font-mono text-[13px] text-foreground/15 pt-1 transition-all duration-700 group-hover:text-foreground/40 group-hover:translate-x-1"
-        >
-          →
-        </motion.span>
-      </div>
+      {slug ? (
+        <Link to={`${RESSOURCE_PATH}/${slug}`} className="group block">
+          {inner}
+        </Link>
+      ) : (
+        <div className="group">{inner}</div>
+      )}
     </motion.article>
   );
 };
@@ -97,15 +117,15 @@ const JournalenSection = ({ entries = DEFAULTS.journal }: JournalenSectionProps)
           transition={{ duration: 0.8, ease: EASING, delay: 0.4 }}
           className="mt-10 md:mt-14"
         >
-          <a
-            href="#"
+          <Link
+            to="/ressourcer"
             className="group inline-flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/40 transition-colors duration-700 hover:text-foreground"
           >
             <span>Alle indlæg</span>
             <span className="transition-transform duration-700 group-hover:translate-x-1">
               →
             </span>
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>

@@ -2,10 +2,8 @@ import { defineConfig } from "vite";
 /// <reference types="vitest" />
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
-
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
@@ -13,7 +11,7 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -28,9 +26,9 @@ export default defineConfig(({ mode }) => ({
     target: "es2020",
     rollupOptions: {
       output: {
-        manualChunks: {
-          "framer-motion": ["framer-motion"],
-          "react-vendor": ["react", "react-dom", "react-router-dom"],
+        manualChunks: (id) => {
+          if (id.includes("framer-motion")) return "framer-motion";
+          if (id.includes("react-dom") || id.includes("react-router-dom") || /node_modules\/react\//.test(id)) return "react-vendor";
         },
       },
     },

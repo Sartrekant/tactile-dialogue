@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
+import typography from "@tailwindcss/typography";
 
 export default {
   darkMode: ["class"],
@@ -89,7 +90,64 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      typography: {
+        landsvig: {
+          css: {
+            "--tw-prose-body": "hsl(210 4% 18% / 0.7)",
+            "--tw-prose-headings": "hsl(210 4% 18%)",
+            "--tw-prose-links": "hsl(210 4% 18%)",
+            "--tw-prose-bold": "hsl(210 4% 18%)",
+            "--tw-prose-counters": "hsl(210 4% 18% / 0.4)",
+            "--tw-prose-bullets": "hsl(210 4% 18% / 0.3)",
+            "--tw-prose-hr": "hsl(36 16% 87%)",
+            "--tw-prose-quotes": "hsl(210 4% 18% / 0.7)",
+            "--tw-prose-quote-borders": "hsl(36 16% 87%)",
+            "--tw-prose-code": "hsl(210 4% 18%)",
+            "--tw-prose-pre-code": "hsl(210 4% 18%)",
+            "--tw-prose-pre-bg": "hsl(36 16% 87% / 0.5)",
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: "13px",
+            lineHeight: "1.8",
+            maxWidth: "68ch",
+            "h1, h2, h3, h4": {
+              fontFamily: "'Playfair Display', serif",
+              fontWeight: "400",
+              letterSpacing: "-0.02em",
+              lineHeight: "1.2",
+            },
+            a: {
+              textDecoration: "none",
+              borderBottom: "1px solid hsl(36 16% 87%)",
+              transition: "border-color 0.7s",
+              "&:hover": {
+                borderColor: "hsl(210 4% 18% / 0.6)",
+              },
+            },
+            blockquote: {
+              fontStyle: "normal",
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "1.1em",
+              borderLeftColor: "hsl(36 16% 87%)",
+            },
+            code: {
+              fontFamily: "'JetBrains Mono', monospace",
+              background: "hsl(36 16% 87% / 0.5)",
+              padding: "0.15em 0.4em",
+              borderRadius: "0.125rem",
+              fontWeight: "400",
+              fontSize: "0.9em",
+            },
+            "code::before": { content: '""' },
+            "code::after": { content: '""' },
+            pre: {
+              background: "hsl(36 16% 87% / 0.4)",
+              borderRadius: "0.125rem",
+              border: "1px solid hsl(36 16% 87%)",
+            },
+          },
+        },
+      },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [tailwindcssAnimate, typography],
 } satisfies Config;

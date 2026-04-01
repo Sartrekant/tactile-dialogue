@@ -4,9 +4,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ChatDrawer from "@/components/ChatDrawer";
 import KasperSection from "@/components/KasperSection";
-import SelectedWorkSection from "@/components/SelectedWorkSection";
 import HaandvaerketSection from "@/components/HaandvaerketSection";
-import JournalenSection from "@/components/JournalenSection";
 import AIContactSection from "@/components/AIContactSection";
 import SectionDivider from "@/components/SectionDivider";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -57,30 +55,18 @@ const Index = () => {
         <SectionDivider />
 
         <ScrollReveal>
-          <KasperSection content={content.kasper} />
+          <AIContactSection content={content.contact} />
         </ScrollReveal>
 
         <SectionDivider variant="ornament" />
 
         <ScrollReveal>
-          <SelectedWorkSection entries={content.work} />
+          <KasperSection content={content.kasper} />
         </ScrollReveal>
 
         <SectionDivider />
 
         <HaandvaerketSection content={content.metoden} />
-
-        <SectionDivider variant="ornament" />
-
-        <ScrollReveal>
-          <JournalenSection entries={content.journal} />
-        </ScrollReveal>
-
-        <SectionDivider />
-
-        <ScrollReveal>
-          <AIContactSection content={content.contact} />
-        </ScrollReveal>
       </main>
       <AnimatedFooter />
     </>
