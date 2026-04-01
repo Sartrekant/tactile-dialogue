@@ -60,7 +60,7 @@ const NavTopbar = ({ links }: { links: NavLinkType[] }) => {
       className="fixed top-0 left-0 right-0 z-40"
       style={{ backgroundColor: "rgba(249, 248, 244, 0.85)", backdropFilter: "blur(12px)" }}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 md:px-6 md:py-6">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-6 md:py-4">
         <Link to="/" className="font-serif text-lg md:text-xl tracking-tight text-foreground">
           LANDSVIG
         </Link>
@@ -85,8 +85,9 @@ const NavTopbar = ({ links }: { links: NavLinkType[] }) => {
                 transition={{ duration: 0.35, ease: EASING }}
                 style={{
                   position: "absolute",
-                  top: "calc(100% + 14px)",
+                  top: "calc(100% + 12px)",
                   right: 0,
+                  left: "auto",
                   overflow: "hidden",
                   backgroundColor: "rgba(249, 248, 244, 0.97)",
                   backdropFilter: "blur(16px)",
@@ -105,7 +106,7 @@ const NavTopbar = ({ links }: { links: NavLinkType[] }) => {
                     <NavLinkItem
                       item={link}
                       onClick={() => setMenuOpen(false)}
-                      className="block px-5 py-3.5 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/50 hover:text-foreground transition-colors duration-300"
+                      className="block px-5 py-3.5 text-right font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/50 hover:text-foreground transition-colors duration-300"
                     />
                   </motion.div>
                 ))}
