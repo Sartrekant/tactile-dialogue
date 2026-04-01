@@ -5,22 +5,25 @@ import type { SiteContent } from "@/lib/content-types";
 interface UseContentResult {
   content: SiteContent;
   loading: boolean;
+  error: boolean;
 }
 
 export function useContent(): UseContentResult {
   const [content, setContent] = useState<SiteContent>(DEFAULTS);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    setError(false);
 
     fetch("/api/content")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: SiteContent | null) => {
-        if (!cancelled && data) setContent(data);
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then((data: SiteContent) => {
+        if (!cancelled) setContent(data);
       })
       .catch(() => {
-        // Silently fall back to defaults
+        if (!cancelled) setError(true);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -31,5 +34,5 @@ export function useContent(): UseContentResult {
     };
   }, []);
 
-  return { content, loading };
+  return { content, loading, error };
 }

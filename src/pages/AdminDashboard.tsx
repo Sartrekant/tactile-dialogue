@@ -31,6 +31,66 @@ const SaveStatusContext = createContext<SaveStatusCtx>({
   notifyError: () => {},
 });
 
+// ─── Save coordinator ─────────────────────────────────────────────────────────
+// Module-level state so all editor components share one timer and one in-flight
+// request, eliminating concurrent read-modify-write races on the blob store.
+const pendingDirty = new Map<string, () => unknown>();
+let flushTimer: ReturnType<typeof setTimeout> | undefined;
+let flushInFlight = false;
+let coordinatorCtx: SaveStatusCtx | null = null;
+
+function registerCoordinatorCtx(ctx: SaveStatusCtx) {
+  coordinatorCtx = ctx;
+}
+
+function markDirty(section: string, getData: () => unknown) {
+  pendingDirty.set(section, getData);
+  clearTimeout(flushTimer);
+  flushTimer = setTimeout(flushDirty, 2000);
+}
+
+async function flushDirty() {
+  if (flushInFlight || pendingDirty.size === 0) return;
+  flushInFlight = true;
+
+  // Snapshot and clear before the async call so edits during the fetch
+  // queue into pendingDirty and arm a fresh timer rather than being lost.
+  const snapshot = new Map(pendingDirty);
+  pendingDirty.clear();
+
+  const sections: Record<string, unknown> = {};
+  for (const [section, getData] of snapshot) {
+    sections[section] = getData();
+  }
+
+  coordinatorCtx?.notifySaving();
+  try {
+    const res = await fetch("/api/admin/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sections }),
+    });
+    if (res.ok) {
+      coordinatorCtx?.notifySaved();
+    } else {
+      // Re-queue sections that failed so next user edit retries them
+      for (const [section, getData] of snapshot) {
+        if (!pendingDirty.has(section)) pendingDirty.set(section, getData);
+      }
+      coordinatorCtx?.notifyError();
+    }
+  } catch {
+    // Network failure — re-queue for retry on next edit
+    for (const [section, getData] of snapshot) {
+      if (!pendingDirty.has(section)) pendingDirty.set(section, getData);
+    }
+    coordinatorCtx?.notifyError();
+  } finally {
+    flushInFlight = false;
+  }
+}
+
+// saveSection is kept for AssetUploader, which calls it directly after upload
 async function saveSection(section: string, data: unknown): Promise<boolean> {
   try {
     const res = await fetch("/api/admin/save", {
@@ -46,6 +106,7 @@ async function saveSection(section: string, data: unknown): Promise<boolean> {
 
 function useSave() {
   const ctx = useContext(SaveStatusContext);
+  registerCoordinatorCtx(ctx);
   return {
     save: async (section: string, data: unknown) => {
       ctx.notifySaving();
@@ -56,19 +117,13 @@ function useSave() {
 }
 
 function useAutosave(section: string, getData: () => unknown, deps: unknown[]) {
-  const { save } = useSave();
-  const saveRef = useRef(save);
   const getDataRef = useRef(getData);
-  saveRef.current = save;
   getDataRef.current = getData;
   const isFirst = useRef(true);
-  const timer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     if (isFirst.current) { isFirst.current = false; return; }
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => saveRef.current(section, getDataRef.current()), 2000);
-    return () => clearTimeout(timer.current);
+    markDirty(section, () => getDataRef.current());
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
@@ -1019,21 +1074,27 @@ const TABS: Array<{ id: Tab; label: string }> = [
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const AdminDashboard = () => {
-  const { content, loading } = useContent();
+  const { content, loading, error: contentError } = useContent();
   const [activeTab, setActiveTab] = useState<Tab>("tekster");
   const [authChecked, setAuthChecked] = useState(false);
+  const [authError, setAuthError] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const savedTimer = useRef<ReturnType<typeof setTimeout>>();
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("/api/admin/check").then((res) => {
-      if (res.status === 401) {
-        navigate("/admin/login", { replace: true });
-      } else {
+    fetch("/api/admin/check")
+      .then((res) => {
+        if (res.status === 401) {
+          navigate("/admin/login", { replace: true });
+        } else {
+          setAuthChecked(true);
+        }
+      })
+      .catch(() => {
+        setAuthError(true);
         setAuthChecked(true);
-      }
-    });
+      });
   }, [navigate]);
 
   const ctxValue = useMemo<SaveStatusCtx>(() => ({
@@ -1048,14 +1109,17 @@ const AdminDashboard = () => {
 
   if (!authChecked) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <p className="font-mono text-[11px] text-foreground/30">Checker adgang...</p>
+      {authError
+        ? <p className="font-mono text-[11px] text-red-400">Netværksfejl — genindlæs siden</p>
+        : <p className="font-mono text-[11px] text-foreground/30">Checker adgang...</p>
+      }
     </div>
   );
 
   const statusLabel =
     saveStatus === "saving" ? "Gemmer..."
     : saveStatus === "saved" ? "Alle ændringer gemt"
-    : saveStatus === "error" ? "Gem mislykkedes"
+    : saveStatus === "error" ? "Gem mislykkedes — redigér et felt for at prøve igen"
     : null;
 
   return (
@@ -1115,6 +1179,11 @@ const AdminDashboard = () => {
               <p className="font-mono text-[11px] text-foreground/30">Henter indhold...</p>
             ) : (
               <>
+                {contentError && (
+                  <p className="mb-6 font-mono text-[10px] text-red-400">
+                    Indhold kunne ikke hentes — viser standardindhold
+                  </p>
+                )}
                 {activeTab === "tekster" && <TeksterTab content={content} />}
                 {activeTab === "projekter" && <ProjekterTab content={content} />}
                 {activeTab === "navigation" && <NavigationTab content={content} />}
