@@ -1,12 +1,7 @@
-import { writeContent } from "../_content.js";
+import { readContent, writeContent } from "../_content.js";
 import { isAuthenticated, unauthorized } from "../_auth.js";
-import type { SiteContent } from "../../src/lib/content-types.js";
 
 export const config = { runtime: "edge" };
-
-const VALID_SECTION_KEYS = new Set<keyof SiteContent>([
-  "hero", "kasper", "work", "metoden", "journal", "contact", "nav", "settings", "ressourcer",
-]);
 
 export default async function handler(req: Request) {
   if (req.method !== "POST") {
@@ -15,31 +10,54 @@ export default async function handler(req: Request) {
 
   if (!(await isAuthenticated(req))) return unauthorized();
 
-  const body = (await req.json()) as { content?: unknown };
+  const VALID_SECTIONS = new Set([
+    "hero", "kasper", "work", "metoden", "journal", "contact", "nav", "settings", "ressourcer",
+  ]);
 
-  if (!body.content || typeof body.content !== "object" || Array.isArray(body.content)) {
+  const body = await req.json() as Record<string, unknown>;
+  let patches: Record<string, unknown>;
+
+  if (typeof body.section === "string") {
+    // Single-section form — used by AssetUploader after upload
+    if (body.data === undefined) {
+      return new Response(
+        JSON.stringify({ error: "section og data er påkrævet" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    if (!VALID_SECTIONS.has(body.section)) {
+      return new Response(
+        JSON.stringify({ error: "Ugyldig sektion" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    patches = { [body.section]: body.data };
+  } else if (body.sections !== null && typeof body.sections === "object" && !Array.isArray(body.sections)) {
+    // Batch form — used by the save coordinator to flush all dirty sections at once
+    const incoming = body.sections as Record<string, unknown>;
+    const invalidKey = Object.keys(incoming).find((k) => !VALID_SECTIONS.has(k));
+    if (invalidKey) {
+      return new Response(
+        JSON.stringify({ error: `Ugyldig sektion: ${invalidKey}` }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    patches = incoming;
+  } else {
     return new Response(
-      JSON.stringify({ error: "Manglende felt: content (fuldt SiteContent-objekt påkrævet)" }),
+      JSON.stringify({ error: "section og data, eller sections, er påkrævet" }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
-  const incoming = body.content as Record<string, unknown>;
+  const content = await readContent();
 
-  // Validate that all expected top-level section keys are present.
-  for (const key of VALID_SECTION_KEYS) {
-    if (!(key in incoming)) {
-      return new Response(
-        JSON.stringify({ error: `Manglende sektion i content: ${key}` }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
+  // Patch all sections in one read-modify-write; keys validated against VALID_SECTIONS above
+  for (const [key, value] of Object.entries(patches)) {
+    (content as unknown as Record<string, unknown>)[key] = value;
   }
 
-  // The client sends the full in-memory content snapshot — write it directly.
-  // This eliminates the read-before-write (saves one blobList + one fetch per save).
-  // The cast is safe: we've validated all required keys above.
-  await writeContent(incoming as SiteContent);
+  await writeContent(content);
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,

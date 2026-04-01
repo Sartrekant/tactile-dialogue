@@ -57,8 +57,8 @@ function useDebouncedSave(
       const res = await fetch("/api/admin/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Send full content snapshot — eliminates read-before-write on the server.
-        body: JSON.stringify({ content: contentRef.current }),
+        // Send all sections as a batch — compatible with the { sections } API shape.
+        body: JSON.stringify({ sections: contentRef.current }),
       });
       if (res.ok) {
         ctx.notifySaved();
