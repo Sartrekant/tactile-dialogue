@@ -38,85 +38,83 @@ const NavLinkItem = ({
 
 const NavTopbar = ({ links }: { links: NavLinkType[] }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
 
   return (
-    <>
-      {/* Header bar — negative space, only brand + menu trigger */}
-      <motion.header
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="fixed top-0 left-0 right-0 z-40"
-        style={{ backgroundColor: "rgba(249, 248, 244, 0.85)", backdropFilter: "blur(12px)" }}
-      >
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 md:px-6 md:py-6">
-          <Link to="/" className="font-serif text-lg md:text-xl tracking-tight text-foreground">
-            LANDSVIG
-          </Link>
+    <motion.header
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8, delay: 0.2 }}
+      className="fixed top-0 left-0 right-0 z-40"
+      style={{ backgroundColor: "rgba(249, 248, 244, 0.85)", backdropFilter: "blur(12px)" }}
+    >
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 md:px-6 md:py-6">
+        <Link to="/" className="font-serif text-lg md:text-xl tracking-tight text-foreground">
+          LANDSVIG
+        </Link>
+
+        {/* Menu trigger + dropdown */}
+        <div ref={dropdownRef} className="relative">
           <button
-            onClick={() => setMenuOpen(true)}
+            onClick={() => setMenuOpen((v) => !v)}
             className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/50 hover:text-foreground transition-colors duration-500"
-            aria-label="Åbn menu"
+            aria-label={menuOpen ? "Luk menu" : "Åbn menu"}
+            aria-expanded={menuOpen}
           >
-            Menu
+            {menuOpen ? "Luk" : "Menu"}
           </button>
-        </div>
-      </motion.header>
 
-      {/* Fullscreen overlay */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: EASING }}
-            className="fixed inset-0 z-50 flex flex-col"
-            style={{ backgroundColor: "rgba(249, 248, 244, 0.98)" }}
-          >
-            {/* Overlay header */}
-            <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-5 md:px-6 md:py-6">
-              <Link
-                to="/"
-                onClick={() => setMenuOpen(false)}
-                className="font-serif text-lg md:text-xl tracking-tight text-foreground/30"
+          <AnimatePresence>
+            {menuOpen && (
+              <motion.nav
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.35, ease: EASING }}
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 14px)",
+                  right: 0,
+                  overflow: "hidden",
+                  backgroundColor: "rgba(249, 248, 244, 0.97)",
+                  backdropFilter: "blur(16px)",
+                  border: "1px solid hsl(36 16% 87%)",
+                  minWidth: 160,
+                }}
               >
-                LANDSVIG
-              </Link>
-              <button
-                onClick={() => setMenuOpen(false)}
-                className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/50 hover:text-foreground transition-colors duration-500"
-                aria-label="Luk menu"
-              >
-                Luk
-              </button>
-            </div>
-
-            {/* Links */}
-            <nav className="flex-1 flex flex-col justify-center px-4 md:px-6">
-              <div className="mx-auto w-full max-w-6xl">
                 {links.map((link, i) => (
                   <motion.div
                     key={link.label}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.5, ease: EASING, delay: i * 0.08 }}
-                    className="border-b border-border py-6 md:py-8 first:border-t"
+                    transition={{ duration: 0.25, ease: EASING, delay: i * 0.05 }}
+                    className="border-b border-border last:border-b-0"
                   >
                     <NavLinkItem
                       item={link}
                       onClick={() => setMenuOpen(false)}
-                      className="font-serif text-[clamp(2rem,6vw,4rem)] text-foreground/50 hover:text-foreground transition-colors duration-500 leading-none"
+                      className="block px-5 py-3.5 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/50 hover:text-foreground transition-colors duration-300"
                     />
                   </motion.div>
                 ))}
-              </div>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+              </motion.nav>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </motion.header>
   );
 };
 
