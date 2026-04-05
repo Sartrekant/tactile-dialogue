@@ -55,7 +55,7 @@ export async function readContent(): Promise<SiteContent> {
       if (blobs.length === 0) return structuredClone(DEFAULTS);
       cachedBlobUrl = blobs[0].url;
     }
-    const res = await fetch(cachedBlobUrl, { cache: "no-cache" });
+    const res = await fetch(cachedBlobUrl, { cache: "no-store" });
     if (!res.ok) {
       // Stale cached URL — clear it and retry with a fresh list next call.
       cachedBlobUrl = null;
