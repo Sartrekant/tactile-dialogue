@@ -49,8 +49,6 @@ const AssetUploader = ({
       const { url: newUrl } = (await res.json()) as { url: string };
       setUrl(newUrl);
 
-      // Route the URL update through the parent's onSave callback so it
-      // goes through the debounced full-snapshot save path.
       if (field && section !== "__assets") {
         onSave(section, { ...sectionData, [field]: newUrl });
       }
@@ -131,31 +129,11 @@ const AktiverTab = ({ content, onSave }: AktiverTabProps) => {
         <AssetUploader
           label="Portræt"
           hint="Bruges i 'Om mig'-sektionen. Anbefalet: 3:4 aspect ratio."
-          currentUrl={content.kasper.portraitUrl}
+          currentUrl={content.overview.portraitUrl}
           blobName="portrait.webp"
-          section="kasper"
-          sectionData={{ ...content.kasper }}
+          section="overview"
+          sectionData={{ ...content.overview }}
           field="portraitUrl"
-          onSave={onSave}
-        />
-        <AssetUploader
-          label="Metoden-baggrund"
-          hint="Baggrundsbillede til 'Metoden'-sektionen."
-          currentUrl={content.metoden.backgroundUrl}
-          blobName="metoden-bg.webp"
-          section="metoden"
-          sectionData={{ ...content.metoden }}
-          field="backgroundUrl"
-          onSave={onSave}
-        />
-        <AssetUploader
-          label="Kontakt-baggrund"
-          hint="Baggrundsbillede til kontaktsektionen."
-          currentUrl={content.contact.backgroundUrl}
-          blobName="contact-bg.webp"
-          section="contact"
-          sectionData={{ ...content.contact }}
-          field="backgroundUrl"
           onSave={onSave}
         />
       </div>

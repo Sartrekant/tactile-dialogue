@@ -5,10 +5,10 @@ import type { SiteContent } from "@/lib/content-types";
 import { DEFAULTS } from "@/lib/content-types";
 
 interface KasperSectionProps {
-  content?: SiteContent["kasper"];
+  content?: SiteContent["overview"];
 }
 
-const KasperSection = ({ content = DEFAULTS.kasper }: KasperSectionProps) => {
+const KasperSection = ({ content = DEFAULTS.overview }: KasperSectionProps) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -62,7 +62,7 @@ const KasperSection = ({ content = DEFAULTS.kasper }: KasperSectionProps) => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 1, ease: EASING, delay: 0.4 }}
+              transition={{ duration: 0.8, ease: EASING, delay: 0.4 }}
               className="mt-6 md:mt-8 space-y-5"
             >
               {content.bio.map((paragraph, i) => (

@@ -29,7 +29,7 @@ const ChatDrawer = ({ open, onClose }: ChatDrawerProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: EASING }}
+            transition={{ duration: 0.3, ease: EASING }}
             className="fixed inset-0 z-40 bg-foreground/10 backdrop-blur-sm"
             onClick={onClose}
           />
@@ -39,8 +39,8 @@ const ChatDrawer = ({ open, onClose }: ChatDrawerProps) => {
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ duration: 0.55, ease: EASING }}
-            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-border bg-background shadow-2xl"
+            transition={{ duration: 0.5, ease: EASING }}
+            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-border bg-background shadow-[0_16px_40px_rgba(44,46,48,0.15)]"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border px-6 py-5">
@@ -134,13 +134,13 @@ const ChatDrawer = ({ open, onClose }: ChatDrawerProps) => {
                       handleSubmit(e as unknown as React.FormEvent);
                     }
                   }}
-                  className="flex-1 resize-none rounded-sm border border-border bg-background px-4 py-3 font-mono text-[12px] leading-relaxed tracking-wide text-foreground placeholder:text-foreground/30 outline-none transition-colors duration-700 focus:border-foreground/60"
+                  className="flex-1 resize-none border-b border-border bg-transparent px-4 py-3 font-mono text-[12px] leading-relaxed tracking-wide text-foreground placeholder:text-foreground/30 outline-none transition-all duration-500 focus:border-b-2 focus:border-foreground"
                   style={{ maxHeight: "120px", overflowY: "auto" }}
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-foreground bg-foreground text-background transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-30 disabled:translate-y-0"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-foreground bg-foreground text-background transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-40 disabled:border-dashed disabled:translate-y-0"
                   aria-label="Send"
                 >
                   <Send size={13} />

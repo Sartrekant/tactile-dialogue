@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { SiteContent, JournalEntry } from "@/lib/content-types";
+import type { SiteContent, ServiceItem } from "@/lib/content-types";
 
 const inputCls =
   "w-full border-b border-border bg-transparent pb-2 font-mono text-[13px] text-foreground outline-none transition-colors duration-300 placeholder:text-foreground/20 focus:border-foreground/60";
@@ -56,13 +56,19 @@ export interface TeksterTabProps {
   onSave: (section: string, data: unknown) => void;
 }
 
-const HeroEditor = ({ content, onSave }: { content: SiteContent; onSave: TeksterTabProps["onSave"] }) => {
-  const [headline, setHeadline] = useState(content.hero.headline);
-  const [tagline, setTagline] = useState(content.hero.tagline);
+const OverviewEditor = ({ content, onSave }: { content: SiteContent; onSave: TeksterTabProps["onSave"] }) => {
+  const [headline, setHeadline] = useState(content.overview.headline);
+  const [tagline, setTagline] = useState(content.overview.tagline);
+  const [bio, setBio] = useState(content.overview.bio);
+  const [details, setDetails] = useState(content.overview.details);
+
+  const save = (overrides: Partial<SiteContent["overview"]> = {}) => {
+    onSave("overview", { ...content.overview, headline, tagline, bio, details, ...overrides });
+  };
 
   return (
     <div>
-      <h2 className={sectionHeadingCls}>Hero</h2>
+      <h2 className={sectionHeadingCls}>Oversigt</h2>
       <div className="space-y-6 max-w-lg">
         <div>
           <label className={labelCls}>Overskrift</label>
@@ -72,7 +78,7 @@ const HeroEditor = ({ content, onSave }: { content: SiteContent; onSave: Tekster
             value={headline}
             onChange={(e) => {
               setHeadline(e.target.value);
-              onSave("hero", { headline: e.target.value, tagline });
+              save({ headline: e.target.value });
             }}
           />
           <p className="mt-1 font-mono text-[10px] text-foreground/30">Brug linjeskift for at opdele overskriften</p>
@@ -85,44 +91,22 @@ const HeroEditor = ({ content, onSave }: { content: SiteContent; onSave: Tekster
             value={tagline}
             onChange={(e) => {
               setTagline(e.target.value);
-              onSave("hero", { headline, tagline: e.target.value });
+              save({ tagline: e.target.value });
             }}
           />
         </div>
-      </div>
-    </div>
-  );
-};
-
-const KasperEditor = ({ content, onSave }: { content: SiteContent; onSave: TeksterTabProps["onSave"] }) => {
-  const [bio, setBio] = useState<[string, string, string]>([...content.kasper.bio] as [string, string, string]);
-  const [details, setDetails] = useState(content.kasper.details);
-
-  const updateBio = (next: [string, string, string]) => {
-    setBio(next);
-    onSave("kasper", { ...content.kasper, bio: next, details });
-  };
-
-  const updateDetails = (next: typeof details) => {
-    setDetails(next);
-    onSave("kasper", { ...content.kasper, bio, details: next });
-  };
-
-  return (
-    <div>
-      <h2 className={sectionHeadingCls}>Om mig</h2>
-      <div className="space-y-6 max-w-lg">
         {bio.map((p, i) => (
           <div key={i}>
-            <label className={labelCls}>Afsnit {i + 1}</label>
+            <label className={labelCls}>Bio — afsnit {i + 1}</label>
             <textarea
               className={textareaCls}
               rows={4}
               value={p}
               onChange={(e) => {
-                const next = [...bio] as [string, string, string];
+                const next = [...bio];
                 next[i] = e.target.value;
-                updateBio(next);
+                setBio(next);
+                save({ bio: next });
               }}
             />
           </div>
@@ -139,7 +123,8 @@ const KasperEditor = ({ content, onSave }: { content: SiteContent; onSave: Tekst
                   onChange={(e) => {
                     const next = [...details];
                     next[i] = { ...item, value: e.target.value };
-                    updateDetails(next);
+                    setDetails(next);
+                    save({ details: next });
                   }}
                 />
               </div>
@@ -151,14 +136,52 @@ const KasperEditor = ({ content, onSave }: { content: SiteContent; onSave: Tekst
   );
 };
 
-const MetodenEditor = ({ content, onSave }: { content: SiteContent; onSave: TeksterTabProps["onSave"] }) => {
-  const [headline, setHeadline] = useState(content.metoden.headline);
-  const [p0, setP0] = useState(content.metoden.paragraphs[0]);
-  const [p1, setP1] = useState(content.metoden.paragraphs[1]);
+const ServicesEditor = ({
+  sectionKey,
+  label,
+  content,
+  onSave,
+}: {
+  sectionKey: "space" | "tools";
+  label: string;
+  content: SiteContent;
+  onSave: TeksterTabProps["onSave"];
+}) => {
+  const section = content[sectionKey];
+  const [headline, setHeadline] = useState(section.headline);
+  const [tagline, setTagline] = useState(section.tagline);
+  const [services, setServices] = useState<ServiceItem[]>(section.services);
+
+  const save = (overrides: Partial<SiteContent["space"]> = {}) => {
+    onSave(sectionKey, { headline, tagline, services, ...overrides });
+  };
+
+  const updateService = (i: number, field: keyof ServiceItem, value: string) => {
+    const next = services.map((s, idx) => idx === i ? { ...s, [field]: value } : s);
+    setServices(next);
+    save({ services: next });
+  };
+
+  const addService = () => {
+    const next = [...services, { title: "", description: "", tag: "" }];
+    setServices(next);
+    save({ services: next });
+  };
+
+  const removeService = (i: number) => {
+    const next = services.filter((_, idx) => idx !== i);
+    setServices(next);
+    save({ services: next });
+  };
+
+  const reorder = (next: ServiceItem[]) => {
+    setServices(next);
+    save({ services: next });
+  };
 
   return (
     <div>
-      <h2 className={sectionHeadingCls}>Metoden</h2>
+      <h2 className={sectionHeadingCls}>{label}</h2>
       <div className="space-y-6 max-w-lg">
         <div>
           <label className={labelCls}>Overskrift</label>
@@ -167,123 +190,7 @@ const MetodenEditor = ({ content, onSave }: { content: SiteContent; onSave: Teks
             value={headline}
             onChange={(e) => {
               setHeadline(e.target.value);
-              onSave("metoden", { headline: e.target.value, paragraphs: [p0, p1] });
-            }}
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Afsnit 1</label>
-          <textarea
-            className={textareaCls}
-            rows={4}
-            value={p0}
-            onChange={(e) => {
-              setP0(e.target.value);
-              onSave("metoden", { headline, paragraphs: [e.target.value, p1] });
-            }}
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Afsnit 2</label>
-          <textarea
-            className={textareaCls}
-            rows={4}
-            value={p1}
-            onChange={(e) => {
-              setP1(e.target.value);
-              onSave("metoden", { headline, paragraphs: [p0, e.target.value] });
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const JournalEditor = ({ content, onSave }: { content: SiteContent; onSave: TeksterTabProps["onSave"] }) => {
-  const [entries, setEntries] = useState<JournalEntry[]>(content.journal);
-
-  const update = (i: number, field: keyof JournalEntry, value: string) => {
-    const next = entries.map((e, idx) => idx === i ? { ...e, [field]: value } : e);
-    setEntries(next);
-    onSave("journal", next);
-  };
-
-  const add = () => {
-    const next = [...entries, { number: String(entries.length + 1).padStart(2, "0"), tag: "", title: "", excerpt: "" }];
-    setEntries(next);
-    onSave("journal", next);
-  };
-
-  const remove = (i: number) => {
-    const next = entries.filter((_, idx) => idx !== i);
-    setEntries(next);
-    onSave("journal", next);
-  };
-
-  const reorder = (next: JournalEntry[]) => {
-    setEntries(next);
-    onSave("journal", next);
-  };
-
-  return (
-    <div>
-      <h2 className={sectionHeadingCls}>Journalen</h2>
-      <div className="space-y-8 max-w-lg">
-        {entries.map((entry, i) => (
-          <div key={i} className="border border-border rounded-sm p-4 space-y-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-mono text-[10px] text-foreground/40">Indlæg {entry.number}</span>
-              <div className="flex items-center gap-2">
-                <ReorderButtons entries={entries} index={i} setEntries={reorder} />
-                <button onClick={() => remove(i)} className="font-mono text-[10px] text-red-400 hover:text-red-600 transition-colors">
-                  Slet
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className={labelCls}>Tag</label>
-              <input className={inputCls} value={entry.tag} onChange={(e) => update(i, "tag", e.target.value)} placeholder="Metode" />
-            </div>
-            <div>
-              <label className={labelCls}>Titel</label>
-              <input className={inputCls} value={entry.title} onChange={(e) => update(i, "title", e.target.value)} />
-            </div>
-            <div>
-              <label className={labelCls}>Uddrag</label>
-              <textarea className={textareaCls} rows={3} value={entry.excerpt} onChange={(e) => update(i, "excerpt", e.target.value)} />
-            </div>
-          </div>
-        ))}
-
-        <button
-          onClick={add}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40 hover:text-foreground transition-colors border border-border rounded-sm px-4 py-2.5 w-full"
-        >
-          + Tilføj indlæg
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const ContactEditor = ({ content, onSave }: { content: SiteContent; onSave: TeksterTabProps["onSave"] }) => {
-  const [headline, setHeadline] = useState(content.contact.headline);
-  const [tagline, setTagline] = useState(content.contact.tagline);
-  const [email, setEmail] = useState(content.contact.email);
-
-  return (
-    <div>
-      <h2 className={sectionHeadingCls}>Kontakt</h2>
-      <div className="space-y-6 max-w-lg">
-        <div>
-          <label className={labelCls}>Overskrift</label>
-          <input
-            className={inputCls}
-            value={headline}
-            onChange={(e) => {
-              setHeadline(e.target.value);
-              onSave("contact", { headline: e.target.value, tagline, email });
+              save({ headline: e.target.value });
             }}
           />
         </div>
@@ -295,7 +202,121 @@ const ContactEditor = ({ content, onSave }: { content: SiteContent; onSave: Teks
             value={tagline}
             onChange={(e) => {
               setTagline(e.target.value);
-              onSave("contact", { headline, tagline: e.target.value, email });
+              save({ tagline: e.target.value });
+            }}
+          />
+        </div>
+
+        {services.map((service, i) => (
+          <div key={i} className="border border-border rounded-sm p-4 space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-mono text-[10px] text-foreground/40">Ydelse {i + 1}</span>
+              <div className="flex items-center gap-2">
+                <ReorderButtons entries={services} index={i} setEntries={reorder} />
+                <button onClick={() => removeService(i)} className="font-mono text-[10px] text-red-400 hover:text-red-600 transition-colors">
+                  Slet
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className={labelCls}>Titel</label>
+              <input className={inputCls} value={service.title} onChange={(e) => updateService(i, "title", e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Beskrivelse</label>
+              <textarea className={textareaCls} rows={3} value={service.description} onChange={(e) => updateService(i, "description", e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Tag</label>
+              <input className={inputCls} value={service.tag} onChange={(e) => updateService(i, "tag", e.target.value)} placeholder="Oplevelser" />
+            </div>
+          </div>
+        ))}
+
+        <button
+          onClick={addService}
+          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40 hover:text-foreground transition-colors border border-border rounded-sm px-4 py-2.5 w-full"
+        >
+          + Tilføj ydelse
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const AdvisoryEditor = ({ content, onSave }: { content: SiteContent; onSave: TeksterTabProps["onSave"] }) => {
+  const [headline, setHeadline] = useState(content.advisory.headline);
+  const [paragraphs, setParagraphs] = useState(content.advisory.paragraphs);
+
+  const save = (overrides: Partial<SiteContent["advisory"]> = {}) => {
+    onSave("advisory", { headline, paragraphs, ...overrides });
+  };
+
+  return (
+    <div>
+      <h2 className={sectionHeadingCls}>Rådgivningen</h2>
+      <div className="space-y-6 max-w-lg">
+        <div>
+          <label className={labelCls}>Overskrift</label>
+          <input
+            className={inputCls}
+            value={headline}
+            onChange={(e) => {
+              setHeadline(e.target.value);
+              save({ headline: e.target.value });
+            }}
+          />
+        </div>
+        {paragraphs.map((p, i) => (
+          <div key={i}>
+            <label className={labelCls}>Afsnit {i + 1}</label>
+            <textarea
+              className={textareaCls}
+              rows={4}
+              value={p}
+              onChange={(e) => {
+                const next = [...paragraphs];
+                next[i] = e.target.value;
+                setParagraphs(next);
+                save({ paragraphs: next });
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ConversationEditor = ({ content, onSave }: { content: SiteContent; onSave: TeksterTabProps["onSave"] }) => {
+  const [headline, setHeadline] = useState(content.conversation.headline);
+  const [tagline, setTagline] = useState(content.conversation.tagline);
+  const [email, setEmail] = useState(content.conversation.email);
+
+  return (
+    <div>
+      <h2 className={sectionHeadingCls}>Samtalen</h2>
+      <div className="space-y-6 max-w-lg">
+        <div>
+          <label className={labelCls}>Overskrift</label>
+          <input
+            className={inputCls}
+            value={headline}
+            onChange={(e) => {
+              setHeadline(e.target.value);
+              onSave("conversation", { headline: e.target.value, tagline, email });
+            }}
+          />
+        </div>
+        <div>
+          <label className={labelCls}>Undertekst</label>
+          <textarea
+            className={textareaCls}
+            rows={3}
+            value={tagline}
+            onChange={(e) => {
+              setTagline(e.target.value);
+              onSave("conversation", { headline, tagline: e.target.value, email });
             }}
           />
         </div>
@@ -307,7 +328,7 @@ const ContactEditor = ({ content, onSave }: { content: SiteContent; onSave: Teks
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              onSave("contact", { headline, tagline, email: e.target.value });
+              onSave("conversation", { headline, tagline, email: e.target.value });
             }}
           />
         </div>
@@ -317,14 +338,14 @@ const ContactEditor = ({ content, onSave }: { content: SiteContent; onSave: Teks
 };
 
 const TeksterTab = ({ content, onSave }: TeksterTabProps) => {
-  const [activeSection, setActiveSection] = useState("hero");
+  const [activeSection, setActiveSection] = useState("overview");
 
   const sections = [
-    { id: "hero", label: "Hero" },
-    { id: "kasper", label: "Om mig" },
-    { id: "metoden", label: "Metoden" },
-    { id: "journal", label: "Journalen" },
-    { id: "contact", label: "Kontakt" },
+    { id: "overview", label: "Oversigt" },
+    { id: "space", label: "Rummet" },
+    { id: "tools", label: "Værktøjerne" },
+    { id: "advisory", label: "Rådgivningen" },
+    { id: "conversation", label: "Samtalen" },
   ];
 
   return (
@@ -348,11 +369,11 @@ const TeksterTab = ({ content, onSave }: TeksterTabProps) => {
 
       {/* Editor */}
       <div className="flex-1 pl-8 overflow-y-auto">
-        {activeSection === "hero" && <HeroEditor content={content} onSave={onSave} />}
-        {activeSection === "kasper" && <KasperEditor content={content} onSave={onSave} />}
-        {activeSection === "metoden" && <MetodenEditor content={content} onSave={onSave} />}
-        {activeSection === "journal" && <JournalEditor content={content} onSave={onSave} />}
-        {activeSection === "contact" && <ContactEditor content={content} onSave={onSave} />}
+        {activeSection === "overview" && <OverviewEditor content={content} onSave={onSave} />}
+        {activeSection === "space" && <ServicesEditor sectionKey="space" label="Rummet" content={content} onSave={onSave} />}
+        {activeSection === "tools" && <ServicesEditor sectionKey="tools" label="Værktøjerne" content={content} onSave={onSave} />}
+        {activeSection === "advisory" && <AdvisoryEditor content={content} onSave={onSave} />}
+        {activeSection === "conversation" && <ConversationEditor content={content} onSave={onSave} />}
       </div>
     </div>
   );

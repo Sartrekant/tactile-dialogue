@@ -8,10 +8,10 @@ import { DEFAULTS } from "@/lib/content-types";
 
 interface HeroSectionProps {
   onChatOpen?: () => void;
-  content?: SiteContent["hero"];
+  content?: SiteContent["overview"];
 }
 
-const HeroSection = ({ onChatOpen, content = DEFAULTS.hero }: HeroSectionProps) => {
+const HeroSection = ({ onChatOpen, content = DEFAULTS.overview }: HeroSectionProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -102,7 +102,7 @@ const HeroSection = ({ onChatOpen, content = DEFAULTS.hero }: HeroSectionProps) 
         className="absolute inset-0 bg-background"
         style={{
           opacity: videoReady ? 0 : 1,
-          transition: "opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1)",
+          transition: "opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1)",
           zIndex: 1,
         }}
       />
@@ -157,12 +157,12 @@ const HeroSection = ({ onChatOpen, content = DEFAULTS.hero }: HeroSectionProps) 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: EASING, delay: 0.6 }}
+            transition={{ duration: 0.8, ease: EASING, delay: 0.6 }}
             className="mt-8 md:mt-12"
           >
             <button
               onClick={onChatOpen}
-              className="group inline-flex items-center border border-foreground bg-foreground px-6 py-3.5 md:px-8 md:py-4 font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-background transition-all duration-700 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-15px_rgba(44,46,48,0.15)] rounded-sm"
+              className="group inline-flex items-center border border-foreground bg-foreground px-6 py-3.5 md:px-8 md:py-4 font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-background transition-all duration-700 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(44,46,48,0.15)] rounded-sm"
             >
               Start en samtale
             </button>

@@ -11,7 +11,7 @@ export default async function handler(req: Request) {
   if (!(await isAuthenticated(req))) return unauthorized();
 
   const VALID_SECTIONS = new Set([
-    "hero", "kasper", "work", "metoden", "journal", "contact", "nav", "settings", "ressourcer",
+    "overview", "space", "tools", "advisory", "conversation", "nav", "settings",
   ]);
 
   const body = await req.json() as Record<string, unknown>;

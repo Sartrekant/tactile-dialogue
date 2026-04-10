@@ -1,26 +1,46 @@
 import { readContent } from "./_content.js";
-import { DEFAULTS } from "../src/lib/content-types.js";
 
+export const config = { runtime: "edge" };
 
-const CORS_HEADERS = {
-  "Content-Type": "application/json",
-  "Cache-Control": "public, max-age=30, stale-while-revalidate=120",
-  "Access-Control-Allow-Origin": "*",
-};
+const ALLOWED_ORIGINS = [
+  "https://landsvig.com",
+  "https://www.landsvig.com",
+  "http://localhost:8080",
+  "http://localhost:5173",
+];
 
 export default async function handler(req: Request) {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return new Response(null, { status: 204, headers: corsHeaders(req) });
   }
+
   if (req.method !== "GET") {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  // If Blob token isn't configured (local dev without env), return defaults
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return new Response(JSON.stringify(DEFAULTS), { headers: CORS_HEADERS });
+  const origin = req.headers.get("origin");
+  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+    return new Response("Forbidden", { status: 403 });
   }
 
   const content = await readContent();
-  return new Response(JSON.stringify(content), { headers: CORS_HEADERS });
+
+  return new Response(JSON.stringify(content), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "max-age=30, stale-while-revalidate=120",
+      ...corsHeaders(req),
+    },
+  });
+}
+
+function corsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("origin");
+  if (!origin || !ALLOWED_ORIGINS.includes(origin)) return {};
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
 }

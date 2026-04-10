@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ChatDrawer from "@/components/ChatDrawer";
 import KasperSection from "@/components/KasperSection";
+import ServicesSection from "@/components/ServicesSection";
 import HaandvaerketSection from "@/components/HaandvaerketSection";
 import AIContactSection from "@/components/AIContactSection";
 import SectionDivider from "@/components/SectionDivider";
@@ -50,23 +51,41 @@ const Index = () => {
       <Navbar nav={content.nav} />
       <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
       <main>
-        <HeroSection content={content.hero} onChatOpen={() => setChatOpen(true)} />
+        <HeroSection content={content.overview} onChatOpen={() => setChatOpen(true)} />
 
         <SectionDivider />
 
-        <ScrollReveal>
-          <AIContactSection content={content.contact} />
-        </ScrollReveal>
+        <ServicesSection
+          id="rummet"
+          headline={content.space.headline}
+          tagline={content.space.tagline}
+          services={content.space.services}
+        />
+
+        <SectionDivider variant="ornament" />
+
+        <ServicesSection
+          id="vaerktoejerne"
+          headline={content.tools.headline}
+          tagline={content.tools.tagline}
+          services={content.tools.services}
+        />
+
+        <SectionDivider />
+
+        <HaandvaerketSection content={content.advisory} />
 
         <SectionDivider variant="ornament" />
 
         <ScrollReveal>
-          <KasperSection content={content.kasper} />
+          <KasperSection content={content.overview} />
         </ScrollReveal>
 
         <SectionDivider />
 
-        <HaandvaerketSection content={content.metoden} />
+        <ScrollReveal>
+          <AIContactSection content={content.conversation} />
+        </ScrollReveal>
       </main>
       <AnimatedFooter />
     </>
