@@ -19,14 +19,7 @@ const ServicesSection = ({ id, headline, tagline, services }: ServicesSectionPro
       <div className="mx-auto max-w-6xl">
         <div className="mb-10 md:mb-16">
           <RevealText
-            as="div"
-            className="mb-4 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/40"
-          >
-            {headline}
-          </RevealText>
-          <RevealText
             as="h2"
-            delay={0.1}
             className="font-serif text-3xl md:text-5xl text-foreground"
           >
             {headline}

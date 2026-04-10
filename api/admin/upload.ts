@@ -16,7 +16,7 @@ export default async function handler(req: Request) {
 
   if (!file || !name) {
     return new Response(
-      JSON.stringify({ error: "file and name required" }),
+      JSON.stringify({ error: "Fil og navn er påkrævet" }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }

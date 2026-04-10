@@ -5,8 +5,6 @@
   "rewrites": [
     { "source": "/admin/(.*)", "destination": "/index.html" },
     { "source": "/admin", "destination": "/index.html" },
-    { "source": "/ressourcer/(.*)", "destination": "/index.html" },
-    { "source": "/ressourcer", "destination": "/index.html" },
     { "source": "/projekter", "destination": "/index.html" },
     { "source": "/vaerktoejer", "destination": "/index.html" },
     { "source": "/faq", "destination": "/index.html" }

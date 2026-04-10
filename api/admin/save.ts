@@ -52,7 +52,9 @@ export default async function handler(req: Request) {
 
   const content = await readContent();
 
-  // Patch all sections in one read-modify-write; keys validated against VALID_SECTIONS above
+  // Patch all sections in one read-modify-write; keys validated against VALID_SECTIONS above.
+  // Double cast needed: TypeScript won't allow dynamic key assignment on a typed interface,
+  // and `key` has already been validated — this is intentionally unsafe-but-bounded.
   for (const [key, value] of Object.entries(patches)) {
     (content as unknown as Record<string, unknown>)[key] = value;
   }
