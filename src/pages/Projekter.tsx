@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Navbar from "@/components/Navbar";
-import SelectedWorkSection from "@/components/SelectedWorkSection";
+import ServicesSection from "@/components/ServicesSection";
 import { EASING } from "@/components/RevealText";
 import { useContent } from "@/hooks/useContent";
 
@@ -32,7 +32,18 @@ const Projekter = () => {
     <>
       <Navbar nav={content.nav} />
       <main className="pt-[57px]">
-        <SelectedWorkSection entries={content.work} />
+        <ServicesSection
+          id="rummet"
+          headline={content.space.headline}
+          tagline={content.space.tagline}
+          services={content.space.services}
+        />
+        <ServicesSection
+          id="vaerktoejerne"
+          headline={content.tools.headline}
+          tagline={content.tools.tagline}
+          services={content.tools.services}
+        />
       </main>
       <AnimatedFooter />
     </>

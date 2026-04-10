@@ -6,11 +6,9 @@ import type { SiteContent } from "@/lib/content-types";
 // ─── Lazy tab imports ─────────────────────────────────────────────────────────
 
 const TeksterTab = React.lazy(() => import("./admin/TeksterTab"));
-const ProjekterTab = React.lazy(() => import("./admin/ProjekterTab"));
 const NavigationTab = React.lazy(() => import("./admin/NavigationTab"));
 const AktiverTab = React.lazy(() => import("./admin/AktiverTab"));
 const IndstillingerTab = React.lazy(() => import("./admin/IndstillingerTab"));
-const RessourcerTab = React.lazy(() => import("./admin/RessourcerTab"));
 
 // ─── Save status context ──────────────────────────────────────────────────────
 
@@ -92,15 +90,13 @@ function useDebouncedSave(
 
 // ─── Dashboard Shell ──────────────────────────────────────────────────────────
 
-type Tab = "tekster" | "projekter" | "navigation" | "aktiver" | "indstillinger" | "ressourcer";
+type Tab = "tekster" | "navigation" | "aktiver" | "indstillinger";
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: "tekster", label: "Tekster" },
-  { id: "projekter", label: "Projekter" },
   { id: "navigation", label: "Navigation" },
   { id: "aktiver", label: "Aktiver" },
   { id: "indstillinger", label: "Indstillinger" },
-  { id: "ressourcer", label: "Ressourcer" },
 ];
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -221,11 +217,9 @@ const AdminDashboard = () => {
           <main className="flex-1 ml-48 overflow-y-auto px-10 py-10 min-h-[calc(100vh-57px)]">
             <Suspense fallback={<div />}>
               {activeTab === "tekster" && <TeksterTab content={content} onSave={handleSave} />}
-              {activeTab === "projekter" && <ProjekterTab content={content} onSave={handleSave} />}
               {activeTab === "navigation" && <NavigationTab content={content} onSave={handleSave} />}
               {activeTab === "aktiver" && <AktiverTab content={content} onSave={handleSave} />}
               {activeTab === "indstillinger" && <IndstillingerTab content={content} onSave={handleSave} />}
-              {activeTab === "ressourcer" && <RessourcerTab content={content} onSave={handleSave} />}
             </Suspense>
           </main>
         </div>

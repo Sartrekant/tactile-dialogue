@@ -106,7 +106,7 @@ export default {
             "--tw-prose-pre-code": "hsl(210 4% 18%)",
             "--tw-prose-pre-bg": "hsl(36 16% 87% / 0.5)",
             fontFamily: "'JetBrains Mono', monospace",
-            fontSize: "13px",
+            fontSize: "16px",
             lineHeight: "1.8",
             maxWidth: "68ch",
             "h1, h2, h3, h4": {

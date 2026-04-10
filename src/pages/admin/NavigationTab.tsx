@@ -31,14 +31,14 @@ const NavigationTab = ({ content, onSave }: NavigationTabProps) => {
     onSave("nav", { style: next, links });
   };
 
-  const updateLink = (i: number, field: "label" | "href" | "to", value: string) => {
+  const updateLink = (i: number, field: "label" | "to", value: string) => {
     const next = links.map((l, idx) => idx === i ? { ...l, [field]: value } : l);
     setLinks(next);
     onSave("nav", { style, links: next });
   };
 
   const addLink = () => {
-    const next = [...links, { label: "", href: "" }];
+    const next = [...links, { label: "", to: "#" }];
     setLinks(next);
     onSave("nav", { style, links: next });
   };
@@ -85,15 +85,8 @@ const NavigationTab = ({ content, onSave }: NavigationTabProps) => {
             />
             <input
               className={inputCls}
-              value={link.href ?? link.to ?? ""}
-              onChange={(e) => {
-                const v = e.target.value;
-                if (v.startsWith("/")) {
-                  updateLink(i, "to", v);
-                } else {
-                  updateLink(i, "href", v);
-                }
-              }}
+              value={link.to}
+              onChange={(e) => updateLink(i, "to", e.target.value)}
               placeholder="#section eller /side"
             />
             <button onClick={() => removeLink(i)} className="font-mono text-[11px] text-red-400 hover:text-red-600 shrink-0 px-1">

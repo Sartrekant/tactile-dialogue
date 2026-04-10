@@ -59,19 +59,19 @@ const AdminLogin = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoFocus
-              className="w-full border-b border-border bg-transparent pb-3 font-mono text-[15px] text-foreground outline-none transition-colors duration-700 placeholder:text-foreground/20 focus:border-foreground"
+              className="w-full border-b border-border bg-transparent pb-3 font-mono text-foreground outline-none transition-all duration-500 placeholder:text-foreground/20 focus:border-b-2 focus:border-foreground"
               placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <p className="font-mono text-[11px] text-red-500">{error}</p>
+            <p className="font-mono text-[11px]" style={{ color: "hsl(0 84% 60%)" }}>{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading || !password}
-            className="w-full bg-foreground py-4 font-mono text-[11px] uppercase tracking-[0.2em] text-background rounded-sm transition-opacity duration-300 disabled:opacity-40"
+            className="w-full bg-foreground py-4 font-mono text-[11px] uppercase tracking-[0.2em] text-background rounded-sm transition-all duration-300 disabled:opacity-40 disabled:border disabled:border-dashed disabled:border-foreground/40"
           >
             {loading ? "Logger ind..." : "Log ind"}
           </button>

@@ -20,17 +20,18 @@ const NavLinkItem = ({
     className ??
     "font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/70 transition-colors duration-700 hover:text-foreground";
 
-  if (item.to) {
+  // Hash links use <a> for native scroll, all others use <Link>
+  if (item.to.startsWith("#")) {
     return (
-      <Link to={item.to} onClick={onClick} className={cls}>
+      <a href={item.to} onClick={onClick} className={cls}>
         {item.label}
-      </Link>
+      </a>
     );
   }
   return (
-    <a href={item.href} onClick={onClick} className={cls}>
+    <Link to={item.to} onClick={onClick} className={cls}>
       {item.label}
-    </a>
+    </Link>
   );
 };
 
@@ -58,7 +59,7 @@ const NavTopbar = ({ links }: { links: NavLinkType[] }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.2 }}
       className="fixed top-0 left-0 right-0 z-40"
-      style={{ backgroundColor: "rgba(249, 248, 244, 0.85)", backdropFilter: "blur(12px)" }}
+      style={{ backgroundColor: "rgba(249, 248, 244, 0.80)", backdropFilter: "blur(12px)" }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-6 md:py-4">
         <Link to="/" className="font-serif text-lg md:text-xl tracking-tight text-foreground">
@@ -82,14 +83,14 @@ const NavTopbar = ({ links }: { links: NavLinkType[] }) => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.35, ease: EASING }}
+                transition={{ duration: 0.3, ease: EASING }}
                 style={{
                   position: "absolute",
                   top: "calc(100% + 12px)",
                   right: 0,
                   left: "auto",
                   overflow: "hidden",
-                  backgroundColor: "rgba(249, 248, 244, 0.97)",
+                  backgroundColor: "rgba(249, 248, 244, 0.80)",
                   backdropFilter: "blur(16px)",
                   border: "1px solid hsl(36 16% 87%)",
                   minWidth: 160,
@@ -100,7 +101,7 @@ const NavTopbar = ({ links }: { links: NavLinkType[] }) => {
                     key={link.label}
                     initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25, ease: EASING, delay: i * 0.05 }}
+                    transition={{ duration: 0.3, ease: EASING, delay: i * 0.05 }}
                     className="border-b border-border last:border-b-0"
                   >
                     <NavLinkItem
@@ -140,7 +141,7 @@ const NavFloating = ({ links }: { links: NavLinkType[] }) => {
       style={{ opacity: hidden ? 0 : 1, pointerEvents: hidden ? "none" : "auto" }}
     >
       <div
-        className="flex items-center gap-6 px-7 py-3.5 rounded-full border border-border backdrop-blur-md shadow-[0_8px_32px_-8px_rgba(44,46,48,0.12)]"
+        className="flex items-center gap-6 px-7 py-3.5 rounded-sm border border-border backdrop-blur-md shadow-[0_8px_24px_rgba(44,46,48,0.12)]"
         style={{ backgroundColor: "rgba(249, 248, 244, 0.88)" }}
       >
         {links.map((link) => (
@@ -159,19 +160,19 @@ const NavDots = ({ links }: { links: NavLinkType[] }) => {
 
   // Track active section via IntersectionObserver
   useEffect(() => {
-    const hashLinks = links.filter((l) => l.href?.startsWith("#"));
+    const hashLinks = links.filter((l) => l.to.startsWith("#"));
     if (hashLinks.length === 0) return;
 
     const observers: IntersectionObserver[] = [];
 
     hashLinks.forEach((link) => {
-      const id = link.href!.slice(1);
+      const id = link.to.slice(1);
       const el = document.getElementById(id);
       if (!el) return;
 
       const observer = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) setActive(link.href!);
+          if (entry.isIntersecting) setActive(link.to);
         },
         { threshold: 0.3 }
       );
@@ -190,10 +191,10 @@ const NavDots = ({ links }: { links: NavLinkType[] }) => {
       className="fixed right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-4"
     >
       {links.map((link) => {
-        const dest = link.href ?? link.to ?? "#";
+        const dest = link.to;
         const isActive = active === dest;
         const isHovered = hovered === link.label;
-        const dotCls = "block w-2 h-2 rounded-full transition-all duration-500";
+        const dotCls = "block w-2 h-2 rounded-sm transition-all duration-500";
         const dotStyle = {
           backgroundColor: isActive ? "rgba(44,46,48,0.9)" : "rgba(44,46,48,0.2)",
           transform: isActive ? "scale(1.4)" : "scale(1)",
@@ -221,10 +222,10 @@ const NavDots = ({ links }: { links: NavLinkType[] }) => {
               )}
             </AnimatePresence>
 
-            {link.to ? (
-              <Link to={link.to} className={dotCls} style={dotStyle} aria-label={link.label} />
+            {link.to.startsWith("#") ? (
+              <a href={link.to} className={dotCls} style={dotStyle} aria-label={link.label} />
             ) : (
-              <a href={dest} className={dotCls} style={dotStyle} aria-label={link.label} />
+              <Link to={link.to} className={dotCls} style={dotStyle} aria-label={link.label} />
             )}
           </div>
         );
@@ -255,14 +256,14 @@ const NavSiderail = ({ links }: { links: NavLinkType[] }) => (
 
     <div className="flex flex-col gap-5">
       {links.map((link) =>
-        link.to ? (
+        link.to.startsWith("#") ? (
+          <a key={link.label} href={link.to} className={railLinkCls} style={railLinkStyle}>
+            {link.label}
+          </a>
+        ) : (
           <Link key={link.label} to={link.to} className={railLinkCls} style={railLinkStyle}>
             {link.label}
           </Link>
-        ) : (
-          <a key={link.label} href={link.href} className={railLinkCls} style={railLinkStyle}>
-            {link.label}
-          </a>
         )
       )}
     </div>
@@ -289,19 +290,19 @@ const NavOverlay = ({ links }: { links: NavLinkType[] }) => {
         aria-label="Menu"
       >
         <motion.span
-          animate={open ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
-          transition={{ duration: 0.6, ease: EASING }}
-          className="block h-px w-6 bg-foreground origin-center"
-        />
-        <motion.span
-          animate={open ? { opacity: 0 } : { opacity: 1 }}
-          transition={{ duration: 0.3 }}
+          animate={open ? { opacity: 0, y: 3 } : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: EASING }}
           className="block h-px w-6 bg-foreground"
         />
         <motion.span
-          animate={open ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
-          transition={{ duration: 0.6, ease: EASING }}
-          className="block h-px w-6 bg-foreground origin-center"
+          animate={open ? { scaleX: 0.6, opacity: 0.5 } : { scaleX: 1, opacity: 1 }}
+          transition={{ duration: 0.3, ease: EASING }}
+          className="block h-px w-6 bg-foreground"
+        />
+        <motion.span
+          animate={open ? { opacity: 0, y: -3 } : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: EASING }}
+          className="block h-px w-6 bg-foreground"
         />
       </motion.button>
 
@@ -314,7 +315,7 @@ const NavOverlay = ({ links }: { links: NavLinkType[] }) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: EASING }}
             className="fixed inset-0 z-40 flex items-center justify-center"
-            style={{ backgroundColor: "rgba(249, 248, 244, 0.97)" }}
+            style={{ backgroundColor: "rgba(249, 248, 244, 0.80)", backdropFilter: "blur(12px)" }}
           >
             <nav className="flex flex-col items-center gap-8">
               {links.map((link, i) => (
