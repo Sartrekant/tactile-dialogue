@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import RevealText, { EASING } from "./RevealText";
-import heroVideo from "@/assets/hero-video.mp4";
+import heroImage from "@/assets/hero-image.webp";
 
 import type { SiteContent } from "@/lib/content-types";
 import { DEFAULTS } from "@/lib/content-types";
@@ -12,12 +12,7 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ onChatOpen, content = DEFAULTS.overview }: HeroSectionProps) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number>(0);
-  const isVisibleRef = useRef(true);
-  const [videoReady, setVideoReady] = useState(false);
+  const [imageReady, setImageReady] = useState(false);
 
   const { scrollYProgress } = useScroll({
     offset: ["start start", "end start"],
@@ -25,115 +20,30 @@ const HeroSection = ({ onChatOpen, content = DEFAULTS.overview }: HeroSectionPro
 
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
 
-  // Canvas resize via ResizeObserver
-  useEffect(() => {
-    const container = containerRef.current;
-    const canvas = canvasRef.current;
-    if (!container || !canvas) return;
-
-    const ro = new ResizeObserver((entries) => {
-      const { width, height } = entries[0].contentRect;
-      const dpr = Math.min(window.devicePixelRatio, 2);
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-    });
-    ro.observe(container);
-    return () => ro.disconnect();
-  }, []);
-
-  // Start/restart the rAF draw loop
-  const startDrawLoop = useCallback(() => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas) return;
-
-    const ctx = canvas.getContext("2d", { alpha: false });
-    if (!ctx) return;
-
-    const draw = () => {
-      if (!isVisibleRef.current) {
-        video.pause();
-        return; // stop rAF chain — will be restarted by IntersectionObserver
-      }
-      if (video.paused && video.readyState >= 2) {
-        video.play();
-      }
-      if (video.readyState >= 2) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      }
-      rafRef.current = requestAnimationFrame(draw);
-    };
-
-    rafRef.current = requestAnimationFrame(draw);
-  }, []);
-
-  // Visibility tracking — pause rAF and video when hero scrolls out of view
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const wasVisible = isVisibleRef.current;
-        isVisibleRef.current = entry.isIntersecting;
-
-        // Restart draw loop when becoming visible again
-        if (!wasVisible && entry.isIntersecting) {
-          startDrawLoop();
-        }
-      },
-      { threshold: 0 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [startDrawLoop]);
-
-  // Initial draw loop start
-  useEffect(() => {
-    startDrawLoop();
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [startDrawLoop]);
-
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
       {/* Blur-up placeholder */}
       <div
         className="absolute inset-0 bg-background"
         style={{
-          opacity: videoReady ? 0 : 1,
+          opacity: imageReady ? 0 : 1,
           transition: "opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1)",
           zIndex: 1,
         }}
       />
 
-      {/* Scroll-scale container with canvas */}
+      {/* Scroll-scale container with image */}
       <motion.div
-        ref={containerRef}
         className="absolute inset-0"
         style={{ scale, willChange: "transform" }}
       >
-        {/* Hidden video source */}
-        <video
-          ref={videoRef}
-          src={heroVideo}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          onCanPlayThrough={() => {
-            if (videoRef.current) videoRef.current.playbackRate = 0.75;
-            setVideoReady(true);
-          }}
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ opacity: 0, pointerEvents: "none" }}
-        />
-        {/* Visible canvas */}
-        <canvas
-          ref={canvasRef}
+        <img
+          src={heroImage}
+          alt=""
+          onLoad={() => setImageReady(true)}
           className="h-full w-full object-cover"
           style={{ display: "block" }}
+          decoding="async"
         />
       </motion.div>
 
