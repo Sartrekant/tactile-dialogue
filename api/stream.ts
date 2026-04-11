@@ -34,11 +34,11 @@ export default async function handler(req: Request) {
   const systemPrompt = content.settings.chatPrompt || DEFAULTS.settings.chatPrompt;
 
   const result = streamText({
-    model: anthropic("claude-sonnet-4-6"),
+    model: anthropic("claude-sonnet-4.6"),
     system: systemPrompt,
     messages,
     maxOutputTokens: 1024,
   });
 
-  return result.toTextStreamResponse();
+  return result.toUIMessageStreamResponse();
 }

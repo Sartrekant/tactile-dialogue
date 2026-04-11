@@ -1,6 +1,7 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { X, Send } from "lucide-react";
 import { EASING } from "./RevealText";
 
@@ -10,8 +11,11 @@ interface ChatDrawerProps {
 }
 
 const ChatDrawer = ({ open, onClose }: ChatDrawerProps) => {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
-    useChat({ api: "/api/stream" });
+  const { messages, sendMessage, status, error } = useChat({
+    transport: new DefaultChatTransport({ api: "/api/stream" }),
+  });
+  const [input, setInput] = useState("");
+  const isLoading = status === "streaming" || status === "submitted";
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -84,7 +88,7 @@ const ChatDrawer = ({ open, onClose }: ChatDrawerProps) => {
                           : "border border-border bg-background text-foreground"
                       }`}
                     >
-                      {m.content}
+                      {m.parts.filter((p) => p.type === "text").map((p) => p.text).join("")}
                     </div>
                   </div>
                 ))}
@@ -122,16 +126,26 @@ const ChatDrawer = ({ open, onClose }: ChatDrawerProps) => {
 
             {/* Input */}
             <div className="border-t border-border px-6 py-4">
-              <form onSubmit={handleSubmit} className="flex items-end gap-3">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!input.trim() || isLoading) return;
+                  sendMessage({ text: input });
+                  setInput("");
+                }}
+                className="flex items-end gap-3"
+              >
                 <textarea
                   value={input}
-                  onChange={handleInputChange}
+                  onChange={(e) => setInput(e.target.value)}
                   placeholder="Skriv her…"
                   rows={1}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      handleSubmit(e as unknown as React.FormEvent);
+                      if (!input.trim() || isLoading) return;
+                      sendMessage({ text: input });
+                      setInput("");
                     }
                   }}
                   className="flex-1 resize-none border-b border-border bg-transparent px-4 py-3 font-mono text-[12px] leading-relaxed tracking-wide text-foreground placeholder:text-foreground/30 outline-none transition-all duration-500 focus:border-b-2 focus:border-foreground"
@@ -139,7 +153,7 @@ const ChatDrawer = ({ open, onClose }: ChatDrawerProps) => {
                 />
                 <button
                   type="submit"
-                  disabled={!input.trim() || isLoading}
+                  disabled={!input?.trim() || isLoading}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-foreground bg-foreground text-background transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-40 disabled:border-dashed disabled:translate-y-0"
                   aria-label="Send"
                 >
