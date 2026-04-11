@@ -1,7 +1,5 @@
 import { readContent } from "./_content.js";
 
-export const config = { runtime: "edge" };
-
 const ALLOWED_ORIGINS = [
   "https://landsvig.com",
   "https://www.landsvig.com",
