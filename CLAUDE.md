@@ -48,31 +48,33 @@ src/
 ├── index.css                         # Tailwind base + CSS variables
 ├── pages/
 │   ├── Index.tsx                     # Main page: composes all sections, chat state, SEO meta
-│   ├── Ressourcer.tsx                # /ressourcer — card grid index with type filter tabs
-│   ├── RessourceDetail.tsx           # /ressourcer/:id — article/audio/video detail page
-│   ├── AdminDashboard.tsx            # Content admin panel (6 tabs; auth-gated)
+│   ├── Projekter.tsx                 # /projekter — project portfolio page
+│   ├── Placeholder.tsx               # /vaerktoejer, /faq — coming-soon shell (title prop)
+│   ├── AdminDashboard.tsx            # Content admin panel (4 tabs; auth-gated)
 │   ├── AdminLogin.tsx                # Admin login form → /api/admin/auth
 │   └── NotFound.tsx                  # 404 fallback
+│   └── admin/
+│       ├── TeksterTab.tsx            # Edit overview, space, tools, advisory, conversation
+│       ├── NavigationTab.tsx         # Edit nav style + links
+│       ├── AktiverTab.tsx            # Availability toggle
+│       └── IndstillingerTab.tsx      # SEO, chatPrompt, social links
 ├── components/
 │   ├── Navbar.tsx                    # 5 nav style variants (topbar/floating/dots/siderail/overlay)
 │   ├── HeroSection.tsx               # Video-to-canvas with scroll parallax; onChatOpen prop
 │   ├── ChatDrawer.tsx                # Sliding chat drawer → /api/stream (useChat)
-│   ├── SelectedWorkSection.tsx       # Portfolio entries (content.work)
-│   ├── HaandvaerketSection.tsx       # Full-bleed image section with parallax
-│   ├── KasperSection.tsx             # Founder bio section
-│   ├── JournalenSection.tsx          # Journal/blog entries (content.journal)
-│   ├── AIContactSection.tsx          # Contact form → /api/contact
+│   ├── ServicesSection.tsx           # Reusable services grid (content.space / content.tools)
+│   ├── HaandvaerketSection.tsx       # Advisory text section (content.advisory)
+│   ├── KasperSection.tsx             # Portrait + bio section (content.overview)
+│   ├── AIContactSection.tsx          # Contact form → /api/contact (content.conversation)
 │   ├── RevealText.tsx                # Text slide-up animation (exports EASING)
 │   ├── ScrollReveal.tsx              # useInView fade-in wrapper
 │   └── SectionDivider.tsx            # Line/ornament divider
 ├── hooks/
 │   └── useContent.ts                 # Fetches /api/content, falls back to DEFAULTS
 ├── lib/
-│   └── content-types.ts             # SiteContent, RessourceEntry interfaces + DEFAULTS
+│   └── content-types.ts             # SiteContent interface + DEFAULTS
 ├── assets/
-│   ├── hero-video.mp4               # H.264, 1280px, no audio (~1 MB)
-│   ├── hero.webp                    # Håndværket background (48 KB)
-│   └── contact-bg.webp              # Contact background (147 KB)
+│   └── hero-video.mp4               # H.264, 1280px, no audio (~1 MB)
 └── test/
 
 api/
@@ -97,8 +99,9 @@ api/
 
 ```
 /                   → Index.tsx          (main single-page site)
-/ressourcer         → Ressourcer.tsx     (curated content grid)
-/ressourcer/:id     → RessourceDetail.tsx (single entry detail)
+/projekter          → Projekter.tsx      (project portfolio)
+/vaerktoejer        → Placeholder.tsx    (coming soon)
+/faq                → Placeholder.tsx    (coming soon)
 /admin              → AdminDashboard.tsx  (auth-gated)
 /admin/login        → AdminLogin.tsx
 *                   → NotFound.tsx
@@ -106,7 +109,7 @@ api/
 
 All pages lazy-loaded with `React.lazy()`. Suspense fallback is a blank page in the background color — no spinner.
 
-`vercel.json` rewrites `/admin/*` and `/ressourcer/*` to `index.html` for SPA routing.
+`vercel.json` rewrites `/admin/*`, `/projekter`, `/vaerktoejer`, and `/faq` to `index.html` for SPA routing.
 
 ---
 
@@ -124,52 +127,15 @@ All site content is a single `content.json` in Vercel Blob.
 
 | Section | Purpose |
 |---------|---------|
-| `hero` | Headline, tagline |
-| `kasper` | Founder bio, portrait |
-| `work` | Portfolio entries array |
-| `metoden` | Method section, background image |
-| `journal` | Journal entries array |
-| `contact` | Contact info, background image |
+| `overview` | Headline, tagline, bio paragraphs, details list, portrait URL |
+| `space` | "Rummet" services grid (headline, tagline, `ServiceItem[]`) |
+| `tools` | "Værktøjerne" services grid (headline, tagline, `ServiceItem[]`) |
+| `advisory` | "Rådgivningen" text block (headline, paragraphs) |
+| `conversation` | Contact section (headline, tagline, email) |
 | `nav` | Navigation style + links |
 | `settings` | Availability, SEO, chatPrompt, social links |
-| `ressourcer` | Curated NotebookLM content (articles, audio, video) |
 
 `DEFAULTS` contains complete hardcoded Danish fallback content for every section.
-
----
-
-## Ressourcer
-
-Curated portfolio of NotebookLM content — markdown articles, audio overviews, and YouTube videos.
-
-**Entry type** (`RessourceEntry` in `content-types.ts`):
-
-```typescript
-{
-  id: string;              // slug, e.g. "ai-strategi-2025"
-  type: "article" | "audio" | "video";
-  title: string;
-  excerpt: string;         // 1-2 sentences for card display
-  tag: string;             // e.g. "AI Strategi", "Podcast"
-  date: string;            // ISO date for sorting
-  featured: boolean;       // pinned to top of grid
-  content?: string;        // markdown body (articles only)
-  audioUrl?: string;       // Vercel Blob URL (audio only)
-  videoId?: string;        // YouTube video ID (video only)
-  coverUrl?: string;       // optional card thumbnail
-}
-```
-
-**Index page** (`/ressourcer`): Filter tabs (Alle / Artikler / Audio / Video), responsive card grid (1/2/3 cols), sorted by date descending with featured entries first. Cards show type icon, title, excerpt, tag, date.
-
-**Detail page** (`/ressourcer/:id`): Renders based on entry type:
-- **article** — markdown rendered with `react-markdown` + `remark-gfm`, styled with `@tailwindcss/typography` prose classes customized to site palette
-- **audio** — native `<audio>` player styled to match site, with title/description
-- **video** — YouTube `<iframe>` embed, with title/description
-
-Audio files are uploaded to Vercel Blob via `/api/admin/upload`. Markdown content is stored inline in `content.json`. No separate files, no new API endpoints.
-
-**Admin panel** manages entries in the 6th tab of `AdminDashboard`. Form fields adapt to the selected type. Supports add/edit/delete/reorder.
 
 ---
 
@@ -210,7 +176,7 @@ Token format: `{timestamp}.{hmac-signature}` using `crypto.subtle` and `ADMIN_SE
 
 **Data flow:** `useContent()` fetches `/api/content` on mount → `{ content, loading }` → falls back to `DEFAULTS`. Page components call it once, pass section data as explicit props. No context. No prop drilling beyond one level.
 
-**Navigation:** Hash-based section scroll on the main page: `#kasper`, `#metoden`, `#journalen`, `#kontakt`. Scroll padding 80px. `/ressourcer` link in navbar.
+**Navigation:** Hash-based section scroll on the main page: `#rummet`, `#vaerktoejerne`, `#raadgivningen`, `#kontakt`. Scroll padding 80px.
 
 **Animation:** Shared easing `[0.22, 1, 0.36, 1]` exported from `RevealText.tsx`. Two reusable wrappers:
 - `RevealText` — text slides up on scroll. Used for every heading.
@@ -238,7 +204,7 @@ Both use `useInView` with `once: true` and `margin: "-100px"`.
 
 Vercel, git-triggered. Framework: Vite. Output: `dist/`. Build target: ES2020. Path alias: `@/` → `./src/`.
 
-Rewrites route `/admin/*` and `/ressourcer/*` to `index.html` for SPA routing. Assets get immutable cache headers (1 year). Security headers: nosniff, DENY framing, strict-origin-when-cross-origin referrer.
+Rewrites `/admin/*`, `/projekter`, `/vaerktoejer`, `/faq` to `index.html` for SPA routing. Assets get immutable cache headers (1 year). Security headers: nosniff, DENY framing, strict-origin-when-cross-origin referrer.
 
 Chunk splitting: `framer-motion`, `react-vendor` (react + react-dom + react-router-dom), app code.
 
