@@ -38,8 +38,8 @@ const ContentTab = ({ content, onSave }: ContentTabProps) => {
   const [tools, setTools] = useState(content.tools);
   const [advisory, setAdvisory] = useState(content.advisory);
   const [conversation, setConversation] = useState(content.conversation);
-  const [pricing, setPricing] = useState<SiteContent["pricing"] | undefined>(
-    (content as any).pricing || { headline: "", tagline: "", items: [] }
+  const [pricing, setPricing] = useState<SiteContent["pricing"]>(
+    ((content as unknown as Record<string, unknown>).pricing as SiteContent["pricing"]) || { headline: "", tagline: "", items: [] }
   );
 
   // Sync state when content changes from API
@@ -49,7 +49,7 @@ const ContentTab = ({ content, onSave }: ContentTabProps) => {
     setTools(content.tools);
     setAdvisory(content.advisory);
     setConversation(content.conversation);
-    setPricing((content as any).pricing || { headline: "", tagline: "", items: [] });
+    setPricing(((content as unknown as Record<string, unknown>).pricing as SiteContent["pricing"]) || { headline: "", tagline: "", items: [] });
   }, [content]);
 
   const toggleSection = (section: string) => {

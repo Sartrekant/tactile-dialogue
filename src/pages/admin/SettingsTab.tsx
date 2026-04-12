@@ -39,7 +39,7 @@ const SettingsTab = ({ content, onSave }: SettingsTabProps) => {
   const [seoDescription, setSeoDescription] = useState(content.settings.seoDescription);
   const [chatPrompt, setChatPrompt] = useState(content.settings.chatPrompt);
   const [social, setSocial] = useState(content.settings.social);
-  const [portraitUrl, setPortraitUrl] = useState(content.overview.portraitUrl);
+  const [portraitUrl, setPortraitUrl] = useState<string>(content.overview.portraitUrl);
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -99,7 +99,7 @@ const SettingsTab = ({ content, onSave }: SettingsTabProps) => {
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
       fileInputRef.current.files = dataTransfer.files;
-      handleFileUpload({ target: fileInputRef.current } as any);
+      handleFileUpload({ target: fileInputRef.current } as React.ChangeEvent<HTMLInputElement>);
     }
   };
 

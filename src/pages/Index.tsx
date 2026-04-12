@@ -80,9 +80,9 @@ const Index = () => {
 
         <PricingSection
           id="priser"
-          headline={(content as any).pricing?.headline || "Priser"}
-          tagline={(content as any).pricing?.tagline || ""}
-          items={(content as any).pricing?.items || []}
+          headline={((content as unknown as Record<string, unknown>).pricing as Record<string, unknown>)?.headline as string || "Priser"}
+          tagline={((content as unknown as Record<string, unknown>).pricing as Record<string, unknown>)?.tagline as string || ""}
+          items={((content as unknown as Record<string, unknown>).pricing as Record<string, unknown>)?.items as Array<{title: string; description: string; price: string; tag?: string}> || []}
         />
 
         <SectionDivider />
