@@ -6,7 +6,6 @@ const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard.tsx"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin.tsx"));
 const Projekter = lazy(() => import("./pages/Projekter.tsx"));
-const Placeholder = lazy(() => import("./pages/Placeholder.tsx"));
 
 const App = () => (
   <BrowserRouter>
@@ -14,8 +13,6 @@ const App = () => (
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/projekter" element={<Projekter />} />
-        <Route path="/vaerktoejer" element={<Placeholder title="Værktøjer" />} />
-        <Route path="/faq" element={<Placeholder title="FAQ" />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="*" element={<NotFound />} />

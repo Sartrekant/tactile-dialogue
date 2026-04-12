@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import RevealText, { EASING } from "./RevealText";
-import heroImage from "@/assets/hero-image.webp";
 
 import type { SiteContent } from "@/lib/content-types";
 import { DEFAULTS } from "@/lib/content-types";
@@ -37,14 +36,20 @@ const HeroSection = ({ onChatOpen, content = DEFAULTS.overview }: HeroSectionPro
         className="absolute inset-0"
         style={{ scale, willChange: "transform" }}
       >
-        <img
-          src={heroImage}
-          alt=""
-          onLoad={() => setImageReady(true)}
-          className="h-full w-full object-cover"
-          style={{ display: "block" }}
-          decoding="async"
-        />
+        <picture>
+          <source
+            srcSet="/assets/hero-image-1280.webp 1280w, /assets/hero-image-1920.webp 1920w"
+            type="image/webp"
+          />
+          <img
+            src="/assets/hero-image-1280.jpg"
+            alt=""
+            onLoad={() => setImageReady(true)}
+            className="h-full w-full object-cover"
+            style={{ display: "block" }}
+            decoding="async"
+          />
+        </picture>
       </motion.div>
 
       {/* Gradient overlays */}

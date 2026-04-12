@@ -12,6 +12,13 @@ export interface ServiceItem {
   tag: string;
 }
 
+export interface PricingItem {
+  title: string;
+  description: string;
+  price: string;
+  tag?: string;
+}
+
 export interface SiteContent {
   overview: {
     headline: string;
@@ -38,6 +45,11 @@ export interface SiteContent {
     headline: string;
     tagline: string;
     email: string;
+  };
+  pricing: {
+    headline: string;
+    tagline: string;
+    items: PricingItem[];
   };
   nav: {
     style: NavStyle;
@@ -124,6 +136,27 @@ export const DEFAULTS: SiteContent = {
     headline: "Samtalen",
     tagline: "Har du et projekt i tankerne, eller har du brug for et overblik? Skriv til mig. Jeg svarer inden for 24 timer.",
     email: "kasper@landsvig.com",
+  },
+  pricing: {
+    headline: "Priser",
+    tagline: "Fleksible pakker tilpasset dit behov.",
+    items: [
+      {
+        title: "Starter",
+        description: "Perfekt til små projekter og råd",
+        price: "Fra 5.000 kr",
+      },
+      {
+        title: "Pro",
+        description: "For mellemstore projekter",
+        price: "Fra 15.000 kr",
+      },
+      {
+        title: "Enterprise",
+        description: "Større projekter og løbende samarbejde",
+        price: "Tilbud efter aftale",
+      },
+    ],
   },
   nav: {
     style: "floating",

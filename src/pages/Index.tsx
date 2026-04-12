@@ -5,6 +5,7 @@ import HeroSection from "@/components/HeroSection";
 import ChatDrawer from "@/components/ChatDrawer";
 import KasperSection from "@/components/KasperSection";
 import ServicesSection from "@/components/ServicesSection";
+import PricingSection from "@/components/PricingSection";
 import HaandvaerketSection from "@/components/HaandvaerketSection";
 import AIContactSection from "@/components/AIContactSection";
 import SectionDivider from "@/components/SectionDivider";
@@ -76,6 +77,15 @@ const Index = () => {
         <HaandvaerketSection content={content.advisory} />
 
         <SectionDivider variant="ornament" />
+
+        <PricingSection
+          id="priser"
+          headline={(content as any).pricing?.headline || "Priser"}
+          tagline={(content as any).pricing?.tagline || ""}
+          items={(content as any).pricing?.items || []}
+        />
+
+        <SectionDivider />
 
         <ScrollReveal>
           <KasperSection content={content.overview} />

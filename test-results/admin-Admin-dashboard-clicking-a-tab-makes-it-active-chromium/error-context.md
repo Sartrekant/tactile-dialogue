@@ -1,0 +1,57 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]: LANDSVIG Admin
+    - generic [ref=e6]:
+      - link "↗ Åbn side" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - button "Log ud" [ref=e8] [cursor=pointer]
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - navigation [ref=e11]:
+        - button "Tekster" [ref=e12] [cursor=pointer]
+        - button "Navigation" [active] [ref=e13] [cursor=pointer]
+        - button "Aktiver" [ref=e14] [cursor=pointer]
+        - button "Indstillinger" [ref=e15] [cursor=pointer]
+    - main [ref=e16]:
+      - generic [ref=e17]:
+        - heading "Navigation" [level=2] [ref=e18]
+        - paragraph [ref=e19]: Navigationstype
+        - generic [ref=e20]:
+          - button "Top bar Klassisk vandrette links i toppen" [ref=e21] [cursor=pointer]:
+            - generic [ref=e22]: Top bar
+            - text: Klassisk vandrette links i toppen
+          - button "Floating pill Svævende pille der gemmer sig ved scroll" [ref=e23] [cursor=pointer]:
+            - generic [ref=e24]: Floating pill
+            - text: Svævende pille der gemmer sig ved scroll
+          - button "Dot nav Punktnavigation i højre side" [ref=e25] [cursor=pointer]:
+            - generic [ref=e26]: Dot nav
+            - text: Punktnavigation i højre side
+          - button "Side rail Lodret skinne i venstre side" [ref=e27] [cursor=pointer]:
+            - generic [ref=e28]: Side rail
+            - text: Lodret skinne i venstre side
+          - button "Overlay Ren hamburger → fuldskærmsoverlay" [ref=e29] [cursor=pointer]:
+            - generic [ref=e30]: Overlay
+            - text: Ren hamburger → fuldskærmsoverlay
+        - paragraph [ref=e31]: Links
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - textbox "Label" [ref=e34]: Rummet
+            - textbox "#section eller /side": "#rummet"
+            - button "×" [ref=e35] [cursor=pointer]
+          - generic [ref=e36]:
+            - textbox "Label" [ref=e37]: Værktøjerne
+            - textbox "#section eller /side": "#vaerktoejerne"
+            - button "×" [ref=e38] [cursor=pointer]
+          - generic [ref=e39]:
+            - textbox "Label" [ref=e40]: Rådgivningen
+            - textbox "#section eller /side": "#raadgivningen"
+            - button "×" [ref=e41] [cursor=pointer]
+          - generic [ref=e42]:
+            - textbox "Label" [ref=e43]: Kontakt
+            - textbox "#section eller /side": "#kontakt"
+            - button "×" [ref=e44] [cursor=pointer]
+        - button "+ Tilføj link" [ref=e45] [cursor=pointer]
+```

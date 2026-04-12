@@ -5,10 +5,8 @@ import type { SiteContent } from "@/lib/content-types";
 
 // ─── Lazy tab imports ─────────────────────────────────────────────────────────
 
-const TeksterTab = React.lazy(() => import("./admin/TeksterTab"));
-const NavigationTab = React.lazy(() => import("./admin/NavigationTab"));
-const AktiverTab = React.lazy(() => import("./admin/AktiverTab"));
-const IndstillingerTab = React.lazy(() => import("./admin/IndstillingerTab"));
+const ContentTab = React.lazy(() => import("./admin/ContentTab"));
+const SettingsTab = React.lazy(() => import("./admin/SettingsTab"));
 
 // ─── Save status context ──────────────────────────────────────────────────────
 
@@ -90,12 +88,10 @@ function useDebouncedSave(
 
 // ─── Dashboard Shell ──────────────────────────────────────────────────────────
 
-type Tab = "tekster" | "navigation" | "aktiver" | "indstillinger";
+type Tab = "indhold" | "indstillinger";
 
 const TABS: Array<{ id: Tab; label: string }> = [
-  { id: "tekster", label: "Tekster" },
-  { id: "navigation", label: "Navigation" },
-  { id: "aktiver", label: "Aktiver" },
+  { id: "indhold", label: "Indhold" },
   { id: "indstillinger", label: "Indstillinger" },
 ];
 
@@ -103,7 +99,7 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const AdminDashboard = () => {
   const { content } = useContent();
-  const [activeTab, setActiveTab] = useState<Tab>("tekster");
+  const [activeTab, setActiveTab] = useState<Tab>("indhold");
   const [authChecked, setAuthChecked] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const savedTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -216,10 +212,8 @@ const AdminDashboard = () => {
           {/* Main content — render immediately with DEFAULTS, update when content loads */}
           <main className="flex-1 ml-48 overflow-y-auto px-10 py-10 min-h-[calc(100vh-57px)]">
             <Suspense fallback={<div />}>
-              {activeTab === "tekster" && <TeksterTab content={content} onSave={handleSave} />}
-              {activeTab === "navigation" && <NavigationTab content={content} onSave={handleSave} />}
-              {activeTab === "aktiver" && <AktiverTab content={content} onSave={handleSave} />}
-              {activeTab === "indstillinger" && <IndstillingerTab content={content} onSave={handleSave} />}
+              {activeTab === "indhold" && <ContentTab content={content} onSave={handleSave} />}
+              {activeTab === "indstillinger" && <SettingsTab content={content} onSave={handleSave} />}
             </Suspense>
           </main>
         </div>

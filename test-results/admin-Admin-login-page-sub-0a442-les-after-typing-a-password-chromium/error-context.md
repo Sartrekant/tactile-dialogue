@@ -1,0 +1,54 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]: LANDSVIG Admin
+    - generic [ref=e6]:
+      - link "↗ Åbn side" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - button "Log ud" [ref=e8] [cursor=pointer]
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - navigation [ref=e11]:
+        - button "Tekster" [ref=e12] [cursor=pointer]
+        - button "Navigation" [ref=e13] [cursor=pointer]
+        - button "Aktiver" [ref=e14] [cursor=pointer]
+        - button "Indstillinger" [ref=e15] [cursor=pointer]
+    - main [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - button "Oversigt" [ref=e19] [cursor=pointer]
+          - button "Rummet" [ref=e20] [cursor=pointer]
+          - button "Værktøjerne" [ref=e21] [cursor=pointer]
+          - button "Rådgivningen" [ref=e22] [cursor=pointer]
+          - button "Samtalen" [ref=e23] [cursor=pointer]
+        - generic [ref=e25]:
+          - heading "Oversigt" [level=2] [ref=e26]
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - generic [ref=e29]: Overskrift
+              - textbox [ref=e30]: Struktur og tid.
+              - paragraph [ref=e31]: Brug linjeskift for at opdele overskriften
+            - generic [ref=e32]:
+              - generic [ref=e33]: Undertekst
+              - textbox [ref=e34]: Kasper Landsvig. Selvstændig konsulent for små og mellemstore virksomheder.
+            - generic [ref=e35]:
+              - generic [ref=e36]: Bio — afsnit 1
+              - textbox [ref=e37]: Jeg bygger digitale redskaber og virtuelle rum. Mit arbejde handler om at fjerne støj og skabe overblik i hverdagen.
+            - generic [ref=e38]:
+              - generic [ref=e39]: Bio — afsnit 2
+              - textbox [ref=e40]: Ingen store ord. Ingen unødig kompleksitet. Kun solidt håndværk med de rette materialer.
+            - generic [ref=e41]:
+              - paragraph [ref=e42]: Nøgledata
+              - generic [ref=e43]:
+                - generic [ref=e44]:
+                  - generic [ref=e45]: Fokus
+                  - textbox [ref=e46]: 3D, Værktøjer & Teknologisk Rådgivning
+                - generic [ref=e47]:
+                  - generic [ref=e48]: Tilgængelighed
+                  - textbox [ref=e49]: Åben for nye samtaler
+                - generic [ref=e50]:
+                  - generic [ref=e51]: Sted
+                  - textbox [ref=e52]: Danmark
+```
